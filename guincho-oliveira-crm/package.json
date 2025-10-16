@@ -38,15 +38,14 @@
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5",
-    "proxy": "http://localhost:3001"
+    "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
+  "start": "craco start",
+  "build": "craco build",
+  "test": "craco test",
+  "eject": "react-scripts eject"
+},
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -64,5 +63,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0"
   }
 }
