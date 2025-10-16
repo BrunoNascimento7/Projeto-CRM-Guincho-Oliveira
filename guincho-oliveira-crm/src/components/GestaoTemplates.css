@@ -1,0 +1,162 @@
+/* Container Principal */
+.gestao-templates-container {
+    padding: 25px;
+    background-color: #f7f9fc;
+}
+
+.gestao-templates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.gestao-templates-header h1 {
+    color: #101C5D;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0;
+}
+
+.new-template-btn {
+    background-color: #101C5D;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.2s;
+}
+.new-template-btn:hover {
+    background-color: #0d164a;
+}
+
+/* Grid de Templates */
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.template-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.template-card h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.template-text-preview {
+    font-size: 0.9em;
+    color: #666;
+    flex-grow: 1;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 20px;
+}
+
+.template-card-actions {
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: auto;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid;
+    background-color: transparent;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+.action-btn.edit {
+    color: #007bff;
+    border-color: #007bff;
+}
+.action-btn.edit:hover {
+    background-color: #007bff;
+    color: white;
+}
+.action-btn.delete {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+.action-btn.delete:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.no-templates-message {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+/* Estilos do Modal (TemplateModal.js) */
+.template-form .form-group {
+    margin-bottom: 20px;
+}
+.template-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+.template-form input,
+.template-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+.available-tags {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f7f9fc;
+    border-radius: 5px;
+}
+.available-tags h4 {
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+}
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tags-container .tag {
+    background-color: #e0e0e0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.tags-container .tag:hover {
+    background-color: #ccc;
+}

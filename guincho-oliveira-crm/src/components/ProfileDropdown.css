@@ -1,0 +1,395 @@
+/* src/components/ProfileDropdown.css */
+
+/* --- Variáveis CSS --- */
+:root {
+    --primary-color: #101C5D;
+    --secondary-color: #007bff;
+    --text-color-dark: #333;
+    --text-color-light: #6c757d;
+    --border-color: #e9ecef;
+    --bg-light: #ffffff;
+    --bg-dark: #f8f9fa;
+    --card-bg-color: #ffffff;
+    --hover-bg: #f0f2f5;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --radius-small: 8px;
+    --radius-medium: 12px;
+    --danger-color: #dc3545;
+    --danger-color-light: rgba(220, 53, 69, 0.1);
+}
+
+
+/* --- Container Principal do Dropdown --- */
+.profile-dropdown-container {
+    position: relative;
+    z-index: 1001;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* --- Cabeçalho que o usuário clica para abrir --- */
+.user-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    background-color: transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.user-profile-header:hover {
+    background-color: var(--hover-bg);
+    box-shadow: 0 2px 10px var(--shadow-light);
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+    transition: border-color 0.2s ease;
+}
+
+.user-profile-header:hover .profile-avatar {
+    border-color: var(--secondary-color);
+}
+
+.profile-name-header {
+    font-weight: 500;
+    color: var(--text-color-dark);
+}
+
+.dropdown-arrow {
+    font-size: 0.6em;
+    color: var(--text-color-light);
+    transition: transform 0.3s ease;
+    margin-left: 5px;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* --- O Dropdown Completo --- */
+.profile-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 320px;
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-medium);
+    box-shadow: 0 15px 35px var(--shadow-medium);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeInDropdown 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* --- Seção de Informações do Usuário (topo) --- */
+.dropdown-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background-color: var(--bg-dark);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-avatar-container {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+}
+
+.profile-avatar-large {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--border-color);
+}
+
+.change-photo-overlay {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background-color: var(--secondary-color);
+    color: white;
+    border: 2px solid var(--card-bg-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s ease;
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.dropdown-avatar-container:hover .change-photo-overlay {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.user-details strong {
+    font-size: 1.05em;
+    font-weight: 600;
+    color: var(--primary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-details span {
+    font-size: 0.85em;
+    color: var(--text-color-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Seções de Itens --- */
+.dropdown-section {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.profile-dropdown > .dropdown-section:last-of-type {
+    border-bottom: none;
+}
+
+.dropdown-section-title {
+    padding: 8px 20px;
+    font-size: 0.7em;
+    color: var(--text-color-light);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    font-size: 0.9em;
+    color: var(--text-color-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-bg);
+    color: var(--primary-color);
+}
+
+.dropdown-item svg {
+    font-size: 1.1em;
+    color: var(--text-color-light);
+    transition: color 0.2s ease;
+}
+
+.dropdown-item:hover svg {
+    color: var(--secondary-color);
+}
+
+.theme-item {
+    justify-content: space-between;
+}
+
+/* ========================================================== */
+/* ===== ESTRUTURA REFORÇADA PARA O BOTÃO DE LOGOUT ===== */
+/* ========================================================== */
+.logout-button-wrapper {
+    /* Este container garante o espaçamento correto e a linha superior */
+    padding: 15px 20px; /* Padding nas laterais e em cima/baixo */
+    border-top: 1px solid var(--border-color);
+    box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+}
+
+.logout-button {
+    /* O botão agora é um container flex que centraliza seu conteúdo */
+    display: flex;
+    align-items: center; /* Alinha o ícone e o texto verticalmente */
+    justify-content: center; /* <<< A CHAVE PARA CENTRALIZAR HORIZONTALMENTE */
+    
+    width: 100%; /* Ocupa toda a largura do wrapper */
+    padding: 12px 0; /* Padding vertical, horizontal é desnecessário com justify-content */
+    box-sizing: border-box; /* Garante que o padding não afete a largura */
+
+    background-color: var(--danger-color-light);
+    color: var(--danger-color);
+    
+    font-size: 0.9em;
+    font-weight: 500;
+    
+    border: none;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    
+    transition: all 0.2s ease-in-out;
+}
+
+.logout-button span {
+    /* Garante que o texto não quebre */
+    white-space: nowrap;
+}
+
+.logout-button svg {
+    margin-right: 8px; /* Cria um espaço entre o ícone e o texto */
+}
+
+.logout-button:hover {
+    background-color: var(--danger-color);
+    color: white; /* O texto fica branco no hover */
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    transform: translateY(-2px); /* Efeito de elevação */
+}
+
+.logout-button:hover svg {
+    color: white; /* O ícone também fica branco */
+}
+/* ========================================================== */
+
+
+/* --- Rodapé e Seletor de Tema --- */
+.dropdown-footer {
+    padding: 10px 20px;
+    text-align: right;
+    font-size: 0.75em;
+    color: var(--text-color-light);
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-dark);
+}
+
+.theme-toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.theme-toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 24px; }
+.slider.round:before { border-radius: 50%; }
+
+
+/* --- Estilos da Calculadora --- */
+.calculadora-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.calculadora-modal {
+    background: var(--card-bg-color);
+    border-radius: var(--radius-medium);
+    box-shadow: 0 10px 30px var(--shadow-medium);
+    width: 280px;
+    overflow: hidden;
+    animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.calculadora-display {
+    background: #333;
+    color: #fff;
+    font-family: 'Consolas', monospace;
+    font-size: 2.2em;
+    text-align: right;
+    padding: 20px;
+    word-wrap: break-word;
+    word-break: break-all;
+    border-top-left-radius: var(--radius-medium);
+    border-top-right-radius: var(--radius-medium);
+}
+
+.calculadora-botoes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 5px;
+}
+
+.calculadora-botoes button {
+    background: var(--bg-light);
+    border: none;
+    padding: 18px 0;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: var(--radius-small);
+    margin: 3px;
+}
+
+.calculadora-botoes button:hover {
+    background: var(--hover-bg);
+    color: var(--primary-color);
+}
+
+.calculadora-botoes button:active {
+    background: var(--border-color);
+    transform: scale(0.98);
+}
+
+.calculadora-btn.operador {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: bold;
+}
+
+.calculadora-btn.operador:hover {
+    background-color: #0069d9;
+}
+
+.calculadora-btn.igual {
+    grid-column: span 2;
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+}
+
+.calculadora-btn.igual:hover {
+    background-color: #218838;
+}
+
+.calculadora-btn.zero {
+    grid-column: span 2;
+    text-align: left;
+    padding-left: 25px;
+}

@@ -1,0 +1,266 @@
+/* ========================================================= */
+/* === CSS APRIMORADO - FLUXO DE CAIXA PROJETADO (V2) ==== */
+/* ========================================================= */
+
+/* --- Configurações da Página --- */
+.fluxo-caixa-page {
+    padding: 25px;
+    background-color: #f0f2f5;
+}
+
+/* --- Cabeçalho da Página --- */
+.page-header {
+    background: #ffffff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+    border: 1px solid #e9ecef;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: #101c5d;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- Cards de KPI com Efeito de Vidro --- */
+.cash-flow-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.cash-flow-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cash-flow-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+}
+
+.cash-flow-card h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6c757d;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kpi-value {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #101c5d;
+    line-height: 1.2;
+}
+
+.kpi-value.warning { color: #dc3545; }
+.kpi-value.success { color: #28a745; }
+
+.kpi-insight {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* --- Área Principal com Gráfico e Painel Lateral --- */
+.main-content-area {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    gap: 25px;
+}
+
+.chart-container, .side-panel {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9ecef;
+}
+
+.side-panel h3, .side-panel h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    color: #343a40;
+}
+
+/* --- Botões de Período Modernizados --- */
+.period-buttons {
+    display: flex;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 5px;
+    margin-bottom: 25px;
+}
+
+.period-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.period-buttons button.active {
+    background-color: #ffffff;
+    color: #007bff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- Simulações --- */
+.simulacao-box { margin-top: 20px; }
+.simulacao-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0 0 15px 0; 
+    max-height: 200px; 
+    overflow-y: auto; 
+}
+
+.simulacao-item {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    border-left: 4px solid;
+}
+
+.simulacao-item-empty {
+    border: none;
+    font-style: italic;
+    color: #6c757d;
+    padding: 10px;
+    text-align: center;
+}
+
+.simulacao-item.despesa { border-color: #dc3545; }
+.simulacao-item.receita { border-color: #28a745; }
+
+.simulacao-item button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    opacity: 0.6;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.simulacao-item button:hover { opacity: 1; }
+
+.btn-add-simulacao, .btn-export-csv {
+    width: 100%;
+    padding: 12px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-add-simulacao {
+    background: linear-gradient(45deg, #28a745, #228B22);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+}
+.btn-add-simulacao:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.btn-export-csv {
+    margin-top: 15px;
+    background: linear-gradient(45deg, #6c757d, #343a40);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+}
+.btn-export-csv:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 500px;
+}
+.modal-content h4 { margin-top: 0; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+.modal-footer button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-cancelar { background-color: #f1f3f5; color: #343a40; }
+.btn-salvar { background-color: #007bff; color: #fff; }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    box-sizing: border-box;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 992px) {
+    .main-content-area { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .cash-flow-cards { grid-template-columns: 1fr; }
+    .fluxo-caixa-page { padding: 15px; }
+    .page-header { padding: 15px 20px; }
+    .page-header h1 { font-size: 1.4rem; }
+}

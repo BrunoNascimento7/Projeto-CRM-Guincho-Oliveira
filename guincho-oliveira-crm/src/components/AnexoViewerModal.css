@@ -1,0 +1,40 @@
+/* src/components/AnexoViewerModal.css */
+.modal-overlay-viewer {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex; align-items: center; justify-content: center; z-index: 1200;
+    backdrop-filter: blur(5px);
+}
+.modal-content-viewer {
+    background: #fff; border-radius: 8px;
+    width: 90%; height: 90%;
+    max-width: 1200px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.close-button-viewer {
+    position: absolute; top: 15px; right: 15px;
+    background: rgba(0,0,0,0.5); color: white;
+    border: none; border-radius: 50%;
+    width: 30px; height: 30px;
+    font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+}
+.close-button-viewer:hover { background: rgba(0,0,0,0.8); }
+
+.viewer-loading, .viewer-error, .viewer-download {
+    flex-grow: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: #6c757d;
+}
+.viewer-image, .viewer-pdf {
+    width: 100%; height: 100%; object-fit: contain; border: none;
+}
+.download-button {
+    margin-top: 1rem; padding: 10px 20px; background-color: #007bff; color: white;
+    text-decoration: none; border-radius: 5px; display: inline-flex; gap: 8px; align-items: center;
+}

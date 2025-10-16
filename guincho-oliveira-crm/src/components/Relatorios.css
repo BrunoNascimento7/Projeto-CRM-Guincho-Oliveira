@@ -1,0 +1,390 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.dashboard-page {
+    padding: 30px;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Header e Filtros */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.dashboard-header h1 {
+    color: #1a202c;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    background-color: #fff;
+    padding: 6px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+}
+.filter-toggle {
+    display: flex;
+    background-color: #e2e8f0;
+    border-radius: 7px;
+}
+.filter-toggle button {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: #4a5568;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s ease-in-out;
+}
+.filter-toggle button.active {
+    background-color: #fff;
+    color: #2563eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.filter-controls select, .filter-controls input[type="date"] {
+    border: none;
+    background: transparent;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #2d3748;
+    padding: 8px;
+    border-radius: 7px;
+}
+.custom-date-filter {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.custom-date-filter span {
+    color: #a0aec0;
+    font-size: 0.9em;
+}
+
+/* Cards de KPI */
+.kpi-grid-new {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+.kpi-card-new {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+.kpi-title-new {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+    display: block;
+}
+.kpi-value-new {
+    font-size: 2em;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 4px;
+    display: block;
+}
+.kpi-subtext-new {
+    font-size: 0.85em;
+    color: #718096;
+}
+
+/* Grid Dinâmico para Gráficos */
+.charts-grid-dynamic {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 25px;
+}
+.chart-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+}
+.chart-card h4 {
+    margin: 0 0 25px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Card de Meta Específico */
+.meta-card {
+    display: flex;
+    flex-direction: column;
+}
+.meta-content {
+    margin-top: auto;
+}
+.meta-atingido {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #2563eb;
+}
+.meta-barra {
+    width: 100%;
+    height: 10px;
+    background-color: #e2e8f0;
+    border-radius: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+.meta-progresso {
+    height: 100%;
+    background-color: #2563eb;
+    border-radius: 10px;
+    transition: width 0.5s ease-in-out;
+}
+.meta-alvo {
+    font-size: 0.9em;
+    color: #718096;
+    text-align: right;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .charts-grid-dynamic {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filter-controls {
+        width: 100%;
+    }
+}
+
+.meta-card {
+    position: relative;
+    overflow: hidden; /* Para os confetes não vazarem */
+}
+
+.meta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.edit-meta-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+.edit-meta-btn:hover {
+    opacity: 1;
+}
+
+.meta-barra {
+    position: relative;
+}
+
+.meta-icon {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: left 0.5s ease-in-out;
+    padding: 4px;
+    background-color: #2563eb;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+/* Animações dos bonecos */
+.meta-icon svg {
+    animation-duration: 0.8s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+.meta-progresso[style*="100%"] .meta-icon svg {
+    animation-name: jump;
+}
+.meta-progresso:not([style*="100%"]) .meta-icon svg {
+    animation-name: run;
+}
+
+@keyframes run {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-2px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes jump {
+    0% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+    100% { transform: translateY(0px) scale(1); }
+}
+
+.meta-alvo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.edit-meta-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.edit-meta-form input {
+    width: 100px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+}
+.edit-meta-form button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    background-color: #2563eb;
+    cursor: pointer;
+    font-weight: 600;
+}
+.edit-meta-form button.cancel-btn {
+    background-color: #94a3b8;
+}
+
+.projecao-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2px;
+    background-color: #1f2937; /* Cor escura sofisticada */
+    color: #f9fafb;
+    padding: 20px 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    animation: slideInDown 0.6s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.projecao-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 15px;
+}
+
+.projecao-label {
+    font-size: 0.85em;
+    font-weight: 500;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.projecao-label i {
+    font-style: normal;
+    font-weight: bold;
+    color: #6b7280;
+    border: 1px solid #6b7280;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    cursor: help;
+}
+
+.projecao-value {
+    font-size: 1.6em;
+    font-weight: 700;
+}
+
+.projecao-item.target .projecao-value {
+    color: #34d399; /* Verde para a meta */
+}
+
+.projecao-separator {
+    background-color: #374151;
+    width: 1px;
+}
+
+@media (max-width: 768px) {
+    .projecao-separator { display: none; }
+    .projecao-item { border-bottom: 1px solid #374151; padding-bottom: 15px; }
+    .projecao-item:last-child { border-bottom: none; padding-bottom: 0; }
+}
+
+
+/* --- MELHORIA NA BARRA DE META --- */
+.meta-barra {
+    height: 35px; /* Mais grossa */
+}
+.meta-progresso {
+    height: 35px; /* Mais grossa */
+}
+/* Cor padrão da barra de progresso (se ainda não tiver) */
+.meta-barra .meta-progresso {
+    background-color: #2563EB; /* Azul padrão, ajuste se preferir outra cor */
+    transition: background-color 0.5s ease; /* Transição suave de cor */
+}
+
+.meta-barra .meta-progresso.meta-atingida-color {
+    background-color: #10B981; /* Verde */
+}
+
+/* Estilo para os ícones, para garantir que fiquem brancos */
+.meta-icon svg {
+    color: #fff; /* Garante que os SVGs sejam brancos */
+}
+
+.meta-barra {
+    overflow: visible; /* MUITO IMPORTANTE */
+    position: relative; /* Necessário para o z-index do ícone funcionar bem */
+}
+
+/* Garante que a barra de progresso também não corte o bonequinho */
+.meta-progresso {
+    overflow: visible; /* MUITO IMPORTANTE */
+}
+
+.meta-icon {
+    /* ... (estilos existentes como position, top, transform) ... */
+    
+    /* Adiciona uma transição suave para a mudança de posição e tamanho */
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efeito de "mola" */
+}
+
+/* NOVA CLASSE: Efeito de celebração para o ícone */
+.meta-icon.meta-icon-celebrate {
+    /* Move o ícone para cima e o aumenta, fazendo-o "saltar" */
+    transform: translate(-50%, -75%) scale(1.2); 
+    z-index: 10; /* Garante que ele fique na frente de outros elementos */
+}

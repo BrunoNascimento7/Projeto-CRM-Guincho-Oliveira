@@ -1,0 +1,221 @@
+/* src/components/Sidebar.css */
+
+:root {
+    --sidebar-bg: #101C5D;
+    --sidebar-text: #adb5bd;
+    --sidebar-text-hover: #ffffff;
+    --sidebar-active-bg: rgba(255, 255, 255, 0.08);
+    --sidebar-active-text: #ffffff;
+    --dropdown-bg: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease-in-out;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================================================= */
+/* =================== A CORREÇÃO ESTÁ AQUI ================================ */
+/* ========================================================================= */
+.sidebar.expanded { 
+    width: 270px; /* Aumentado de 260px para dar mais respiro à seta */
+}
+
+.sidebar.collapsed { width: 75px; }
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 70px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.sidebar-logo {
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    margin-left: 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 20px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: var(--sidebar-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    font-size: 1.2em;
+    line-height: 1;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+    transform: scaleX(-1);
+}
+
+/* --- Menu e Itens --- */
+.sidebar-menu {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-menu::-webkit-scrollbar { width: 6px; }
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.menu-item {
+    margin-bottom: 5px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+    width: 100%;
+}
+
+.menu-link:hover {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-text-hover);
+}
+
+.menu-item.active > .menu-link,
+.menu-link.active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+}
+
+.menu-icon {
+    font-size: 1.2em;
+    width: 25px;
+    text-align: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.menu-label {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chevron {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 0.8em;
+    transition: all 0.3s ease-in-out;
+    color: var(--sidebar-text);
+}
+
+.chevron.open {
+    transform: rotate(180deg);
+    background-color: var(--sidebar-active-bg);
+    border-color: var(--sidebar-text-hover);
+    color: var(--sidebar-text-hover);
+}
+
+.menu-link:hover .chevron {
+    color: var(--sidebar-text-hover);
+    border-color: var(--sidebar-text);
+}
+
+.menu-item.active > .menu-link .chevron {
+    color: var(--sidebar-active-text);
+    border-color: var(--sidebar-active-text);
+}
+
+
+.dropdown-menu {
+    list-style: none;
+    padding-left: 0;
+    margin: 5px 0 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.dropdown-menu.open {
+    max-height: 500px;
+}
+
+.dropdown-menu li a {
+    display: block;
+    padding: 10px 15px 10px 60px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 0.9em;
+    border-radius: 5px;
+    transition: color 0.2s, background-color 0.2s;
+    white-space: nowrap;
+}
+
+.dropdown-menu li a:hover {
+    color: var(--sidebar-text-hover);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-menu li a.subitem-active {
+    color: var(--sidebar-active-text);
+    font-weight: 500;
+}
+
+
+/* --- Notificação --- */
+.sidebar-notification-dot {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 15px;
+    width: 8px;
+    height: 8px;
+    background-color: #FF8C00;
+    border-radius: 50%;
+    border: 2px solid var(--sidebar-bg);
+}

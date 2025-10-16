@@ -1,0 +1,261 @@
+/* =================================================================== */
+/* CSS APRIMORADO - CONTROLE DE GASTOS (Outubro, 2025)                 */
+/* Foco: Responsividade, UI/UX Moderno e Micro-interações              */
+/* =================================================================== */
+
+/* --- VARIÁVEIS GLOBAIS E ESTILO BASE --- */
+:root {
+  --cor-primaria: #101c5d;
+  --cor-secundaria: #007bff;
+  --cor-laranja-destaque: #ff8c00;
+  --cor-sucesso: #28a745;
+  --cor-perigo: #dc3545;
+  --cor-aviso: #ffc107;
+  --cor-fundo-pagina: #f4f7fa;
+  --cor-fundo-card: #ffffff;
+  --cor-borda-suave: #e9ecef;
+  --cor-texto-principal: #212529;
+  --cor-texto-secundario: #6c757d;
+  --sombra-suave: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --sombra-media: 0 8px 16px rgba(0, 0, 0, 0.08);
+  --transicao-suave: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --raio-borda: 12px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- ESTRUTURA GERAL DA PÁGINA --- */
+.content-page {
+  padding: 20px;
+  background-color: var(--cor-fundo-pagina);
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* Espaçamento consistente entre os elementos */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================= */
+/* --- NOVO CABEÇALHO PARA CONTROLE DE GASTOS --- */
+/* ============================================= */
+.cg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Permite que os itens quebrem linha em telas menores */
+  gap: 20px; /* Espaçamento entre o título e o botão */
+  padding: 20px 25px;
+  background-color: var(--cor-fundo-card);
+  border-radius: var(--raio-borda);
+  border: 1px solid var(--cor-borda-suave);
+  box-shadow: var(--sombra-suave);
+  position: relative;
+  z-index: 5;
+}
+
+.cg-header h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--cor-texto-principal);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.cg-add-button {
+  background-color: var(--cor-laranja-destaque);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transicao-suave);
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+}
+
+.cg-add-button:hover {
+  background-color: #e67e00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+}
+
+/* --- REFINAMENTO DO CONTAINER DA TABELA --- */
+.table-container {
+  background-color: var(--cor-fundo-card);
+  padding: 15px; /* Padding reduzido para a tabela respirar melhor */
+  border-radius: var(--raio-borda);
+  border: 1px solid var(--cor-borda-suave);
+  box-shadow: var(--sombra-suave);
+  overflow-x: auto; /* Mantém a rolagem horizontal */
+  position: relative;
+  z-index: 1;
+}
+
+/* --- TABELA CUSTOMIZADA E RESPONSIVA --- */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table th, .custom-table td {
+  padding: 16px 20px;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: var(--transicao-suave);
+}
+
+.custom-table thead th {
+  color: var(--cor-texto-secundario);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--cor-borda-suave);
+}
+
+.custom-table tbody tr {
+  border-bottom: 1px solid var(--cor-borda-suave);
+}
+
+.custom-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01); /* Leve zoom para destacar a linha */
+  box-shadow: var(--sombra-media);
+}
+
+.custom-table td {
+  color: var(--cor-texto-principal);
+  font-size: 0.9rem;
+}
+
+/* --- MELHORIAS DE LEGIBILIDADE --- */
+.descricao-cell { display: flex; align-items: center; gap: 10px; }
+.descricao-cell a { color: var(--cor-secundaria); }
+.descricao-cell a:hover { color: var(--cor-primaria); }
+
+/* Alinhamento de colunas numéricas à direita */
+.custom-table th:nth-child(5), /* Valor */
+.custom-table td:nth-child(5) {
+  text-align: right;
+  font-feature-settings: "tnum"; /* Alinha números tabulares */
+}
+
+/* --- BADGES DE STATUS MODERNIZADOS --- */
+/* Base do Badge: Texto branco para alto contraste */
+.status-badge {
+  padding: 6px 16px; /* Aumenta um pouco o padding para respirar melhor */
+  border-radius: 50px;
+  font-size: 0.8rem; /* Aumenta um pouco a fonte */
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #ffffff;   /* Texto branco para todas as variações */
+  display: inline-block; /* Garante o comportamento correto do padding */
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Variações de cor usando as variáveis do seu tema */
+.status-paga      { background-color: var(--cor-sucesso); }   /* Verde para "Paga" */
+.status-aprovada  { background-color: var(--cor-secundaria); } /* Azul para "Aprovada" */
+.status-rejeitada { background-color: var(--cor-perigo); }     /* Vermelho para "Rejeitada" */
+.status-pendente  { background-color: var(--cor-aviso); }      /* Amarelo para "Pendente" */
+
+
+/* NOVO: Centraliza o conteúdo da célula que contém o status */
+.custom-table td:has(.status-badge) {
+    text-align: center;
+}
+
+/* --- BOTÕES DE AÇÃO COM MELHOR FEEDBACK --- */
+.actions-cell { text-align: right; }
+.actions-cell button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0 4px;
+  padding: 8px;
+  border-radius: 50%;
+  transition: var(--transicao-suave);
+}
+
+.actions-cell button:hover { transform: scale(1.2); }
+/* Melhora de acessibilidade para navegação via teclado */
+.actions-cell button:focus-visible {
+  outline: 2px solid var(--cor-secundaria);
+  outline-offset: 2px;
+}
+
+.action-btn-approve { font-size: 1.2rem; color: var(--cor-sucesso); }
+.action-btn-reject  { font-size: 1.2rem; color: var(--cor-perigo); }
+.action-btn-pay     { font-size: 1.2rem; color: var(--cor-secundaria); }
+.action-btn-edit    { font-size: 1rem; color: var(--cor-texto-secundario); }
+
+/* --- ANIMAÇÃO DE HIGHLIGHT DA TABELA (VERSÃO CORRIGIDA) --- */
+
+/* A animação agora é só um "flash" inicial */
+@keyframes highlight-flash {
+  from { background-color: #fef08a !important; } /* Amarelo mais forte */
+  to   { background-color: #fffbe6 !important; } /* Suaviza para a cor de fundo permanente */
+}
+
+/* A linha destacada terá uma cor de fundo permanente */
+tr.highlight {
+  background-color: #fffbe6 !important; /* Cor de fundo suave que PERMANECE */
+  animation: highlight-flash 1.5s ease-out;
+}
+
+/* ================================================= */
+/* --- RESPONSIVIDADE PARA CELULARES E TABLETS --- */
+/* ================================================= */
+@media (max-width: 768px) {
+  .content-page { padding: 15px; gap: 20px; }
+
+  .cg-header {
+    flex-direction: column; /* Empilha o título e o botão */
+    align-items: stretch; /* Ocupa 100% da largura */
+    text-align: center;
+  }
+
+  .cg-header h1 { justify-content: center; font-size: 1.4rem; }
+  
+  .cg-add-button { width: 100%; justify-content: center; }
+
+  .custom-table th, .custom-table td { padding: 12px 15px; }
+  
+  /* Esconde colunas menos importantes em telas muito pequenas */
+  @media (max-width: 500px) {
+    .custom-table th:nth-child(3), /* Categoria */
+    .custom-table td:nth-child(3),
+    .custom-table th:nth-child(4), /* Centro de Custo */
+    .custom-table td:nth-child(4) {
+      display: none;
+    }
+  }
+}
+
+.anexo-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cor-secundaria);
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  vertical-align: middle;
+}
+.anexo-button:hover {
+  color: var(--cor-primaria);
+}

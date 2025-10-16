@@ -1,0 +1,24 @@
+/* Em SystemHubClientes.css */
+
+.status-badge.status-pendente { background-color: #fff3cd; color: #856404; }
+.status-badge.status-rejeitada { background-color: #f8d7da; color: #721c24; }
+.status-badge.status-aprovada { background-color: #d4edda; color: #155724; }
+
+.action-button.process {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    width: auto;
+    height: auto;
+}
+.action-button.process:hover { background-color: #0069d9; }
+
+.processed-by {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-size: 0.9em;
+}

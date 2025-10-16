@@ -1,0 +1,130 @@
+/* src/components/TicketRatingPage.css (VERSÃO CORRIGIDA E NÃO MINIFICADA) */
+
+.rating-page-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    font-family: 'Poppins', sans-serif; /* Apenas para esta página */
+}
+
+.rating-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    animation: fadeInScale 0.5s ease-out forwards;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.rating-card .card-icon {
+    font-size: 3rem;
+    color: #101C5D;
+    margin-bottom: 1rem;
+}
+
+.rating-card h2 {
+    margin: 0 0 10px 0;
+    color: #212529;
+}
+
+.rating-card p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.rating-card .stars-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 2rem;
+}
+
+.rating-card .star {
+    font-size: 2.5rem;
+    color: #e4e5e9;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.rating-card .star:hover {
+    transform: scale(1.15);
+}
+
+.rating-card .star.active {
+    color: #ffc107;
+}
+
+/* --- CORREÇÃO APLICADA AQUI --- */
+.rating-card textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 1.5rem;
+    font-family: inherit;
+}
+
+/* --- CORREÇÃO APLICADA AQUI --- */
+.rating-card button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #101C5D;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.rating-card button:hover:not(:disabled) {
+    background-color: #0d1642;
+}
+
+.rating-card button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* --- Telas de Feedback --- */
+.feedback-view {
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.feedback-view .feedback-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+}
+.feedback-view .feedback-icon.error { color: #dc3545; }
+.feedback-view .feedback-icon.success { color: #28a745; }
+
+.feedback-view .btn-back-home {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 10px 25px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 6px;
+}
+
+.loading.rating-page-container {
+    font-size: 1.2rem;
+    gap: 1rem;
+    color: #6c757d;
+}

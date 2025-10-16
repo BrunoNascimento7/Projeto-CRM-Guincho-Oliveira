@@ -1,0 +1,120 @@
+/* ============================================= */
+/* --- ESTILO PARA O CARD DE VEÍCULO           --- */
+/* ============================================= */
+
+/* --- ESTRUTURA PRINCIPAL DO CARD --- */
+.veiculo-card {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease-in-out;
+  overflow: hidden; /* Garante que os cantos arredondados sejam respeitados */
+}
+
+.veiculo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* --- CABEÇALHO (STATUS E AÇÕES) --- */
+.veiculo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.veiculo-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.veiculo-card-actions button {
+  background: none;
+  border: none;
+  padding: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #6c757d; /* Cinza secundário */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.veiculo-card-actions button:hover {
+  background-color: #e9ecef;
+  color: #101c5d; /* Cor primária */
+}
+
+.veiculo-card-actions .delete-btn:hover {
+  background-color: #f8d7da;
+  color: #721c24; /* Vermelho perigo */
+}
+
+/* --- BADGES DE STATUS (CONSISTENTE COM A OUTRA TELA) --- */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+/* Adapte os nomes das classes se os status no seu DB forem diferentes */
+.status-disponível { background-color: #d4edda; color: #155724; }
+.status-em-serviço { background-color: #d1ecf1; color: #0c5460; }
+.status-manutenção { background-color: #fff3cd; color: #856404; }
+
+
+/* --- CORPO DO CARD (PLACA E MODELO) --- */
+.veiculo-card-body {
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.veiculo-placa {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #101c5d;
+  margin: 0 0 5px 0;
+  font-family: 'Courier New', Courier, monospace; /* Fonte monoespaçada para dar "cara" de placa */
+  letter-spacing: 2px;
+  border: 2px solid #dee2e6;
+  padding: 5px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.veiculo-modelo {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* --- RODAPÉ DO CARD (NOVO CUSTO DE MANUTENÇÃO) --- */
+.veiculo-card-footer {
+  margin-top: auto; /* Empurra o rodapé para baixo */
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 12px 16px;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.footer-info .custo-valor {
+  font-weight: 700;
+  color: #212529;
+  font-size: 0.9rem;
+}

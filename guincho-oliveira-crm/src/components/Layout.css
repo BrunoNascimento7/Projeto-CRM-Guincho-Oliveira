@@ -1,0 +1,152 @@
+/* src/pages/Layout.css (VERSÃO CORRIGIDA) */
+
+.layout-container {
+    display: flex;
+    /* --- CORREÇÃO APLICADA AQUI --- */
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin-left: 80px; 
+    transition: margin-left 0.3s ease; 
+}
+
+.main-content.expanded {
+    margin-left: 250px;
+}
+
+.main-header-container {
+    display: flex;
+    justify-content: flex-end; /* Alinha os itens à direita */
+    align-items: center; /* Centraliza os itens verticalmente */
+    padding: 10px 30px;
+    background-color: var(--card-bg-color, #ffffff);
+    border-bottom: 1px solid var(--border-color, #e9ecef);
+    flex-shrink: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-content-wrapper {
+    padding: 20px 30px;
+    overflow-y: auto;
+    flex-grow: 1;
+    background-color: var(--background-color, #f7f9fc);
+}
+/* ... (Resto do CSS da barra de navegação, como o que você forneceu,
+    pode ser mantido aqui ou em um arquivo separado, mas a
+    estrutura acima é a chave para o alinhamento.)
+... */
+
+/* Estilos para o Avatar do Usuário */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 10px; /* Para separar do nome do usuário */
+    border: 2px solid var(--primary-color, #101C5D);
+}
+
+.user-profile-menu {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.user-profile-menu:hover .user-name {
+    color: #007bff;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.profile-dropdown-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    z-index: 100;
+    list-style: none;
+    padding: 10px 0;
+    margin-top: 10px;
+}
+
+.profile-dropdown-content li {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.profile-dropdown-content li:hover {
+    background-color: #f8f9fa;
+}
+
+/* ================================== */
+/* ==   BANNER DE ANÚNCIO GLOBAL   == */
+/* ================================== */
+.global-announcement-banner {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 20px;
+  background-color: var(--primary-color, #101C5D); /* A barra azul! */
+  color: #ffffff; /* Texto branco */
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex-shrink: 0; /* Impede que o banner encolha */
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.banner-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.banner-content {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.banner-dismiss-button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 5px;
+  line-height: 1;
+}
+
+.banner-dismiss-button:hover {
+  opacity: 1;
+}

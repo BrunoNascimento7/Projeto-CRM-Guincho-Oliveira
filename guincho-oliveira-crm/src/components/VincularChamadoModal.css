@@ -1,0 +1,26 @@
+/* src/components/VincularChamadoModal.css */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 1100;
+}
+.modal-content {
+    background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 600px;
+}
+.search-input {
+    width: 100%; padding: 10px; font-size: 1rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;
+}
+.results-list {
+    min-height: 150px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 0.5rem;
+}
+.result-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.8rem; border-bottom: 1px solid #eee;
+}
+.result-item:last-child { border-bottom: none; }
+.result-item button {
+    background-color: #007bff; color: white; border: none; padding: 5px 10px;
+    border-radius: 4px; cursor: pointer; white-space: nowrap;
+}
+.close-button { margin-top: 1rem; }
+.loading-modal { display: flex; justify-content: center; align-items: center; height: 100%; }

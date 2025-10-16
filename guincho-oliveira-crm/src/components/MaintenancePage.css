@@ -1,0 +1,60 @@
+/* src/pages/MaintenancePage.css */
+
+.maintenance-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f4f7fa;
+    font-family: 'Poppins', sans-serif;
+}
+
+.maintenance-box {
+    text-align: center;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+}
+
+.maintenance-icon {
+    font-size: 4rem;
+    color: #FF8C00; /* Laranja */
+    margin-bottom: 20px;
+}
+
+.maintenance-box h1 {
+    font-size: 2rem;
+    color: #101C5D; /* Azul escuro */
+    margin: 0 0 15px 0;
+}
+
+.maintenance-box p {
+    font-size: 1rem;
+    color: #6c757d; /* Cinza */
+    line-height: 1.6;
+}
+
+.countdown-container {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.countdown-container p {
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.countdown-timer {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    background-color: #f0f0f0;
+    padding: 5px 15px;
+    border-radius: 5px;
+}

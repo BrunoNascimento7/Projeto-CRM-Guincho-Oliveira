@@ -1,0 +1,202 @@
+/* src/components/SupportTicketDetail.css */
+
+.ticket-detail-container {
+    padding: 20px 30px;
+    height: calc(100vh - 70px); /* Altura total menos o header */
+    display: flex;
+    flex-direction: column;
+}
+.ticket-detail-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+.back-button-detail {
+    background: none; border: none; font-size: 0.9rem; cursor: pointer; display: flex;
+    align-items: center; gap: 8px; color: #6c757d; margin-bottom: 15px;
+}
+.ticket-detail-header h1 {
+    font-size: 1.8rem; margin: 0; color: #101C5D;
+}
+.header-subject {
+    font-size: 1rem; color: #6c757d; font-weight: 400;
+}
+
+.ticket-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 25px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.timeline-main {
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.timeline-wrapper {
+    flex-grow: 1; overflow-y: auto; padding: 15px; background-color: #f8f9fa; border-radius: 8px;
+}
+/* Reutiliza estilos de .timeline-item do SupportModule.css, mas podemos redefinir aqui se necessário */
+
+.reply-form {
+    padding-top: 20px; flex-shrink: 0;
+}
+.reply-form textarea {
+    width: 100%; border: 1px solid #ccc; border-radius: 8px; padding: 10px;
+    font-size: 1rem; resize: vertical; min-height: 100px; margin-bottom: 10px;
+}
+.reply-form button {
+    background-color: #101C5D; color: white; border: none; padding: 12px 20px; border-radius: 8px;
+    font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.reply-form button:disabled { background-color: #ccc; }
+
+.details-aside {
+    display: flex; flex-direction: column; gap: 20px; overflow-y: auto; padding-right: 10px;
+}
+.details-card {
+    background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.details-card h3 {
+    margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;
+}
+.form-group-detail { margin-bottom: 15px; }
+.form-group-detail label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; }
+.form-group-detail select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+
+.info-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #333; }
+.info-item svg { color: #6c757d; }
+
+.logs-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+.logs-download-button {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+
+/* --- ESTILOS PARA O COMPONENTE SlaDetails --- */
+/* (Adicionado para que o card de SLA funcione nesta página) */
+
+.sla-details-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.sla-details-card.sla-ok { background: linear-gradient(135deg, #2a9d8f, #28a745); }
+.sla-details-card.sla-alerta { background: linear-gradient(135deg, #fca311, #ffc107); color: #212529; }
+.sla-details-card.sla-violado { background: linear-gradient(135deg, #e76f51, #dc3545); }
+.sla-details-card.sla-default { background: linear-gradient(135deg, #6c757d, #495057); }
+
+.sla-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.sla-header h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.sla-header svg {
+    font-size: 1.5rem;
+}
+
+.sla-progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 99px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.sla-progress-fill {
+    height: 100%;
+    background-color: #fff;
+    border-radius: 99px;
+    transition: width 0.5s ease-in-out;
+}
+.sla-details-card.sla-alerta .sla-progress-fill {
+    background-color: #212529;
+}
+
+.sla-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.sla-tooltip {
+    text-align: center;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* --- ESTILOS PARA O CARD DE AVALIAÇÃO DO ADMIN --- */
+
+.rating-card-admin {
+    background-color: #fff8e1; /* Um fundo amarelo claro para destacar */
+    border-left: 4px solid #ffc107;
+}
+
+.admin-stars-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.2rem;
+    color: #ffc107;
+    margin-bottom: 15px;
+}
+
+.admin-stars-container .star {
+    color: #e4e5e9;
+}
+.admin-stars-container .star.active {
+    color: #ffc107;
+}
+
+.admin-stars-container span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6c757d;
+    margin-left: 10px;
+}
+
+.admin-comment {
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 15px;
+    font-style: italic;
+    color: #343a40;
+    position: relative;
+    border: 1px solid #eee;
+}
+
+.admin-comment::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #fff transparent;
+}

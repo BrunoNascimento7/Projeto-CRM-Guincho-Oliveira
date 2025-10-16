@@ -1,0 +1,64 @@
+/* src/components/SlaDetails.css */
+
+.sla-details-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.sla-details-card.sla-ok { background: linear-gradient(135deg, #2a9d8f, #28a745); }
+.sla-details-card.sla-alerta { background: linear-gradient(135deg, #fca311, #ffc107); color: #212529; }
+.sla-details-card.sla-violado { background: linear-gradient(135deg, #e76f51, #dc3545); }
+.sla-details-card.sla-default { background: linear-gradient(135deg, #6c757d, #495057); }
+
+.sla-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.sla-header h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.sla-header svg {
+    font-size: 1.5rem;
+}
+
+.sla-progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 99px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.sla-progress-fill {
+    height: 100%;
+    background-color: #fff;
+    border-radius: 99px;
+    transition: width 0.5s ease-in-out;
+}
+.sla-details-card.sla-alerta .sla-progress-fill {
+    background-color: #212529;
+}
+
+
+.sla-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.sla-tooltip {
+    text-align: center;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+}

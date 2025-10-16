@@ -1,0 +1,20 @@
+Iniciar o servidor:
+
+- Acesse o terminal
+- Acessar a pasta: C:\Project\backend
+- Executar node server.js
+
+- Abra um novo terminal
+- Acesse a pasta C:\Project\guincho-oliveira-crm
+- Executar npm start
+
+
+Softwares necessários
+
+Postman
+Node.js
+
+***Necessário instalar o react no ambiente
+
+admin@empresa.com
+senhaforte123
