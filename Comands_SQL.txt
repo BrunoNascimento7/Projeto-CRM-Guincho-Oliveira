@@ -1,0 +1,913 @@
+CREATE DATABASE `guincho_oliveira_db`;
+CREATE USER 'guincho_user'@'localhost' IDENTIFIED BY 'senhaforte123';
+GRANT ALL PRIVILEGES ON `guincho_oliveira_db`.* TO 'guincho_user'@'localhost';
+FLUSH PRIVILEGES;
+
+
+
+USE guincho_oliveira_db;
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    perfil VARCHAR(255) NOT NULL,
+    matricula VARCHAR(255),
+    cpf VARCHAR(255),
+    filial VARCHAR(255),
+    cargo VARCHAR(255),
+    centroDeCusto VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    telefone VARCHAR(255),
+    email VARCHAR(255),
+    endereco VARCHAR(255),
+    cpf_cnpj VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS motoristas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    cnh_numero VARCHAR(255),
+    categoria_cnh VARCHAR(255),
+    telefone VARCHAR(255),
+    email VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS veiculos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    placa VARCHAR(255) UNIQUE NOT NULL,
+    modelo VARCHAR(255),
+    marca VARCHAR(255),
+    ano INT,
+    status VARCHAR(255),
+    motorista_id INT,
+    FOREIGN KEY(motorista_id) REFERENCES motoristas(id)
+);
+
+CREATE TABLE IF NOT EXISTS ordens_servico (
+    id VARCHAR(10) PRIMARY KEY,
+    cliente_id INT,
+    motorista_id INT,
+    veiculo_id INT,
+    local_atendimento TEXT,
+    descricao TEXT,
+    data_hora DATETIME,
+    status VARCHAR(255),
+    valor FLOAT,
+    forma_atendimento VARCHAR(255),
+    data_resolucao DATE,
+    notas TEXT,
+    FOREIGN KEY(cliente_id) REFERENCES clientes(id),
+    FOREIGN KEY(motorista_id) REFERENCES motoristas(id),
+    FOREIGN KEY(veiculo_id) REFERENCES veiculos(id)
+);
+
+CREATE TABLE IF NOT EXISTS financeiro (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo VARCHAR(255),
+    descricao TEXT,
+    valor FLOAT,
+    data DATE,
+    motorista_id INT,
+    FOREIGN KEY(motorista_id) REFERENCES motoristas(id)
+);
+
+-- Para adicionar novas colunas à tabela 'usuarios'
+ALTER TABLE usuarios
+ADD COLUMN matricula VARCHAR(255),
+ADD COLUMN cpf VARCHAR(255),
+ADD COLUMN filial VARCHAR(255),
+ADD COLUMN cargo VARCHAR(255),
+ADD COLUMN centroDeCusto VARCHAR(255);
+
+-- Para adicionar a coluna 'email' à tabela 'motoristas'
+ALTER TABLE motoristas ADD COLUMN email VARCHAR(255);
+
+-- Para adicionar colunas à tabela 'ordens_servico'
+ALTER TABLE ordens_servico
+ADD COLUMN data_resolucao DATE,
+ADD COLUMN notas TEXT;
+
+-- Para alterar a senha de um usuário
+ALTER USER 'guincho_user'@'localhost' IDENTIFIED BY 'senhaforte123';
+FLUSH PRIVILEGES;
+
+
+
+
+USE guincho_oliveira_db;
+ALTER TABLE ordens_servico
+ADD COLUMN valor_custos DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+ADD COLUMN lucro DECIMAL(10, 2) NOT NULL DEFAULT 0.00;
+
+ALTER TABLE financeiro
+ADD COLUMN os_id VARCHAR(20) NULL DEFAULT NULL;
+
+CREATE TABLE categorias_financeiras (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  tipo ENUM('Receita', 'Despesa') NOT NULL
+);
+
+
+INSERT INTO categorias_financeiras (nome, tipo) VALUES
+('Receita de Serviço (OS)', 'Receita'),
+('Venda de Peças', 'Receita'),
+('Outras Receitas', 'Receita'),
+('Combustível', 'Despesa'),
+('Pedágio', 'Despesa'),
+('Manutenção do Veículo', 'Despesa'),
+('Salário de Motorista', 'Despesa'),
+('Impostos', 'Despesa'),
+('Aluguel', 'Despesa'),
+('Outras Despesas', 'Despesa');
+
+ALTER TABLE financeiro
+ADD COLUMN categoria_id INT NULL,
+ADD CONSTRAINT fk_categoria
+FOREIGN KEY (categoria_id) REFERENCES categorias_financeiras(id);
+
+CREATE TABLE configuracoes (
+  chave VARCHAR(50) PRIMARY KEY,
+  valor VARCHAR(255) NOT NULL
+);
+
+
+INSERT INTO configuracoes (chave, valor) VALUES ('meta_lucro_mensal', '10000');
+
+
+ALTER TABLE usuarios
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ativo';
+
+
+UPDATE usuarios 
+SET perfil = 'admin_geral' 
+WHERE email = 'admin@guinchooliveira.com';
+
+ALTER TABLE usuarios
+ADD COLUMN foto_perfil MEDIUMTEXT NULL COMMENT 'Armazena a foto de perfil em Base64',
+ADD COLUMN tema VARCHAR(10) NOT NULL DEFAULT 'light' COMMENT 'Preferência de tema do usuário (light/dark)';
+
+ALTER TABLE usuarios
+ADD COLUMN regras_acesso JSON NULL 
+COMMENT 'Armazena regras de acesso, ex: {"dias": [1,2,3,4,5], "inicio": "09:00", "fim": "18:00"}';
+
+ALTER TABLE `notas_chamado`
+ADD COLUMN `tipo` VARCHAR(50) NULL DEFAULT 'nota' AFTER `nota`,
+ADD COLUMN `nome_anexo` VARCHAR(255) NULL AFTER `tipo`,
+ADD COLUMN `url_anexo` LONGTEXT NULL AFTER `nome_anexo`;
+
+
+CREATE TABLE logs_sistema (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_id INT,
+    usuario_nome VARCHAR(255),
+    acao VARCHAR(255) NOT NULL,
+    detalhes TEXT
+);
+
+CREATE TABLE revoked_tokens (
+    token VARCHAR(255) PRIMARY KEY,
+    expiry TIMESTAMP
+);
+
+ALTER TABLE usuarios ADD COLUMN last_logout_at TIMESTAMP NULL;
+
+ALTER TABLE usuarios MODIFY COLUMN senha VARCHAR(255) NOT NULL;
+
+ALTER TABLE usuarios ADD COLUMN ultimo_acesso TIMESTAMP NULL;
+
+
+CREATE TABLE anuncios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    mensagem TEXT NOT NULL,
+    imagem_url VARCHAR(255) NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    criado_por_id INT,
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id)
+);
+
+CREATE TABLE anuncios_lidos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    anuncio_id INT NOT NULL,
+    data_leitura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (anuncio_id) REFERENCES anuncios(id) ON DELETE CASCADE,
+    UNIQUE (usuario_id, anuncio_id)
+);
+
+
+ALTER TABLE anuncios
+ADD COLUMN data_inicio DATE NULL DEFAULT NULL,
+ADD COLUMN data_fim DATE NULL DEFAULT NULL;
+
+ALTER TABLE `anuncios`
+ADD COLUMN `dest_perfis` JSON NULL DEFAULT NULL AFTER `data_fim`,
+ADD COLUMN `dest_usuarios_ids` JSON NULL DEFAULT NULL AFTER `dest_perfis`;
+
+
+ALTER TABLE usuarios
+ADD COLUMN reset_token VARCHAR(255) NULL,
+ADD COLUMN reset_token_expires DATETIME NULL;
+
+
+CREATE TABLE slideshow_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,
+    criado_por_id INT,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+
+
+CREATE TABLE base_conhecimento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    conteudo LONGTEXT NOT NULL,
+    categoria VARCHAR(100) NOT NULL,
+    criado_por_id INT,
+    criado_por_nome VARCHAR(255),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_categoria (categoria),
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+ALTER TABLE usuarios MODIFY COLUMN perfil ENUM(
+    'admin_geral', 
+    'admin', 
+    'operacional', 
+    'financeiro', 
+    'conhecimento_manager' -- Novo perfil adicionado
+) NOT NULL;
+
+DROP TABLE IF EXISTS base_conhecimento;
+
+CREATE TABLE kb_artigos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kb_id VARCHAR(20) NOT NULL UNIQUE,
+    titulo VARCHAR(255) NOT NULL,
+    conteudo LONGTEXT,
+    categoria VARCHAR(100),
+    tags JSON,
+    visibilidade JSON,
+    status ENUM('Rascunho', 'Pendente', 'Aprovado') DEFAULT 'Rascunho',
+    criado_por_id INT,
+    criado_por_nome VARCHAR(255),
+    atualizado_por_nome VARCHAR(255),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+
+
+
+ALTER TABLE kb_artigos
+ADD COLUMN aprovador_id INT NULL AFTER status,
+ADD COLUMN rejeicao_motivo TEXT NULL AFTER aprovador_id,
+MODIFY COLUMN status ENUM('Rascunho', 'Pendente', 'Aprovado', 'Rejeitado') DEFAULT 'Rascunho',
+ADD FOREIGN KEY (aprovador_id) REFERENCES usuarios(id) ON DELETE SET NULL;
+
+
+CREATE TABLE notificacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    tipo VARCHAR(50) NOT NULL,
+    mensagem VARCHAR(255) NOT NULL,
+    link_id INT,
+    lida BOOLEAN DEFAULT FALSE,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE config_precos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_veiculo VARCHAR(100) NOT NULL,
+    tipo_servico VARCHAR(100) NOT NULL,
+    valor_fixo DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    valor_km DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    UNIQUE KEY idx_veiculo_servico (tipo_veiculo, tipo_servico) -- Garante que não haja duplicatas
+);
+
+
+CREATE TABLE orcamentos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    orcamento_uid VARCHAR(20) NOT NULL UNIQUE, -- Ex: 'COT-0925-0001'
+    cliente_id INT,
+    status ENUM('Pendente', 'Enviado', 'Aprovado', 'Recusado', 'Convertido') NOT NULL DEFAULT 'Pendente',
+    dados_cotacao JSON NOT NULL, -- Aqui guardaremos todos os detalhes da cotação
+    valor_total DECIMAL(10, 2) NOT NULL,
+    criado_por_id INT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    os_gerada_id VARCHAR(10), -- ID da OS se for convertida
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+
+INSERT INTO config_precos (tipo_veiculo, tipo_servico, valor_fixo, valor_km) VALUES
+('Padrão', 'Dentro da Cidade', 150.00, 3.50),
+('Padrão', 'Dentro do Estado', 250.00, 2.80),
+('Padrão', 'Interestadual', 400.00, 2.00),
+-- Adicione mais regras se quiser, por exemplo, para 'SUV' ou 'Moto'
+('SUV', 'Dentro da Cidade', 180.00, 4.00),
+('Moto', 'Dentro da Cidade', 100.00, 2.50);
+
+
+
+ALTER TABLE config_precos
+ADD COLUMN valor_adicional_noturno DECIMAL(10, 2) NOT NULL DEFAULT 0.00;
+
+SET SQL_SAFE_UPDATES = 0; (Utilizar se for necessário desabilitar o modo de segurança devido ao WHERE)
+
+UPDATE config_precos SET valor_adicional_noturno = 80.00 WHERE tipo_servico = 'Dentro da Cidade';
+UPDATE config_precos SET valor_adicional_noturno = 100.00 WHERE tipo_servico = 'Dentro do Estado';
+UPDATE config_precos SET valor_adicional_noturno = 120.00 WHERE tipo_servico = 'Interestadual';
+
+SET SQL_SAFE_UPDATES = 1; (Reabilitar o modo de segurança apenas se necessário ao utilizar o comando de desabilitação)
+
+
+INSERT INTO config_precos (tipo_veiculo, tipo_servico, valor_fixo, valor_km, valor_adicional_noturno) VALUES
+('SUV', 'Dentro do Estado', 300.00, 3.20, 100.00),
+('SUV', 'Interestadual', 450.00, 2.50, 120.00),
+('Moto', 'Dentro do Estado', 200.00, 2.00, 100.00),
+('Moto', 'Interestadual', 350.00, 1.80, 120.00);
+
+
+DROP TABLE notas_chamado;
+
+CREATE TABLE `notas_chamado` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `os_id` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `autor` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `nota` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `tipo` varchar(20) DEFAULT 'nota',
+  `nome_anexo` varchar(255) DEFAULT NULL,
+  `url_anexo` text,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `os_id` (`os_id`),
+  CONSTRAINT `notas_chamado_ibfk_1` FOREIGN KEY (`os_id`) REFERENCES `ordens_servico` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+
+
+CREATE TABLE clientes_sistema (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_empresa VARCHAR(255) NOT NULL,
+    status ENUM('ativo', 'suspenso') DEFAULT 'ativo',
+    max_licencas INT DEFAULT 5,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE usuarios ADD COLUMN cliente_id INT;
+
+ALTER TABLE usuarios ADD FOREIGN KEY (cliente_id) REFERENCES clientes_sistema(id);
+
+
+CREATE TABLE clientes_sistema (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_empresa VARCHAR(255) NOT NULL UNIQUE,
+    status ENUM('ativo', 'suspenso') DEFAULT 'ativo',
+    max_licencas INT DEFAULT 5,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+INSERT INTO clientes_sistema (nome_empresa, max_licencas) VALUES ('Guincho Oliveira', 20);
+
+UPDATE usuarios SET cliente_id = 1 WHERE cliente_id IS NULL;
+
+CREATE TABLE anuncios_globais (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    mensagem TEXT NOT NULL,
+    status ENUM('ativo', 'inativo') DEFAULT 'inativo',
+    publico_alvo ENUM('todos', 'admins', 'operacional') DEFAULT 'todos',
+    data_expiracao DATE NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE anuncios_globais_vistos (
+    anuncio_id INT,
+    usuario_id INT,
+    PRIMARY KEY (anuncio_id, usuario_id)
+);
+
+
+CREATE TABLE anuncios_globais_vistos (
+    anuncio_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    PRIMARY KEY (anuncio_id, usuario_id),
+    FOREIGN KEY (anuncio_id) REFERENCES anuncios_globais(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+
+
+ALTER TABLE clientes_sistema ADD COLUMN logo_url VARCHAR(255) NULL;
+
+
+
+
+CREATE TABLE IF NOT EXISTS configuracoes_sistema (
+    chave VARCHAR(50) PRIMARY KEY,
+    valor VARCHAR(255) NOT NULL
+);
+
+INSERT IGNORE INTO configuracoes_sistema (chave, valor) VALUES ('modo_manutencao', 'false');
+
+
+CREATE TABLE IF NOT EXISTS anuncios_globais_vistos (
+    anuncio_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    PRIMARY KEY (anuncio_id, usuario_id),
+    FOREIGN KEY (anuncio_id) REFERENCES anuncios_globais(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE solicitacoes_licenca (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT NOT NULL,
+    solicitante_id INT NOT NULL,
+    solicitante_nome VARCHAR(255),
+    licencas_atuais INT,
+    licencas_solicitadas INT,
+    justificativa TEXT,
+    status ENUM('pendente', 'aprovada', 'rejeitada') DEFAULT 'pendente',
+    data_solicitacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_decisao TIMESTAMP NULL,
+    decisor_id INT NULL,
+    motivo_rejeicao TEXT NULL,
+    FOREIGN KEY (cliente_id) REFERENCES clientes_sistema(id) ON DELETE CASCADE,
+    FOREIGN KEY (solicitante_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE licenca_chaves (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT NOT NULL,
+    chave_licenca VARCHAR(100) NOT NULL,
+    usuario_id_alocado INT NULL,
+    data_alocacao TIMESTAMP NULL,
+    UNIQUE(cliente_id, chave_licenca),
+    FOREIGN KEY (cliente_id) REFERENCES clientes_sistema(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id_alocado) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+
+ALTER TABLE usuarios ADD COLUMN licenca_chave_id INT NULL;
+
+ALTER TABLE usuarios ADD FOREIGN KEY (licenca_chave_id) REFERENCES licenca_chaves(id) ON DELETE SET NULL;
+
+
+
+SET SQL_SAFE_UPDATES = 0;
+
+
+UPDATE usuarios SET cliente_id = NULL WHERE perfil = 'admin_geral';
+
+
+SET SQL_SAFE_UPDATES = 1;
+
+ALTER TABLE usuarios ADD COLUMN precisa_trocar_senha BOOLEAN DEFAULT FALSE;
+
+
+CREATE TABLE `chat_messages` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `sender_id` INT NOT NULL,
+  `receiver_id` INT NOT NULL,
+  `message` TEXT NOT NULL,
+  `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` ENUM('sent', 'delivered', 'read') NOT NULL DEFAULT 'sent',
+  PRIMARY KEY (`id`),
+  INDEX `idx_sender` (`sender_id`),
+  INDEX `idx_receiver` (`receiver_id`),
+  FOREIGN KEY (`sender_id`) REFERENCES `usuarios`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`receiver_id`) REFERENCES `usuarios`(`id`) ON DELETE CASCADE
+);
+
+
+ALTER TABLE clientes_sistema
+ADD COLUMN sidebar_config JSON,
+ADD COLUMN dashboard_config JSON,
+ADD COLUMN login_config JSON;
+
+
+-- Tabela para categorizar as despesas (Combustível, Manutenção, Salários, etc.)
+CREATE TABLE despesas_categorias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- Tabela para cadastrar fornecedores (Posto de Gasolina, Oficina Mecânica, etc.)
+CREATE TABLE fornecedores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    cnpj VARCHAR(20) NULL,
+    telefone VARCHAR(20) NULL,
+    email VARCHAR(255) NULL
+);
+
+-- Tabela principal que irá registrar cada despesa
+CREATE TABLE despesas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(255) NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    data_vencimento DATE NOT NULL,
+    data_pagamento DATE NULL,
+    status ENUM('Pendente', 'Aprovada', 'Paga', 'Rejeitada') NOT NULL DEFAULT 'Pendente',
+    
+    categoria_id INT,
+    fornecedor_id INT NULL,
+    veiculo_id INT NULL, -- Para vincular o gasto a um veículo (Centro de Custo)
+    
+    criado_por_id INT,
+    aprovado_por_id INT NULL,
+    
+    anexo_url VARCHAR(255) NULL, -- URL para o comprovante/nota fiscal
+    justificativa TEXT NULL,
+    
+    recorrente ENUM('Nao', 'Diario', 'Semanal', 'Mensal', 'Anual') NOT NULL DEFAULT 'Nao',
+    
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (categoria_id) REFERENCES despesas_categorias(id),
+    FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id),
+    FOREIGN KEY (veiculo_id) REFERENCES veiculos(id),
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id),
+    FOREIGN KEY (aprovado_por_id) REFERENCES usuarios(id)
+);
+
+-- Vamos inserir algumas categorias padrão para começar
+INSERT INTO despesas_categorias (nome) VALUES 
+('Combustível'),
+('Manutenção de Frota'),
+('Peças e Acessórios'),
+('Salários e Encargos'),
+('Impostos e Taxas'),
+('Marketing e Publicidade'),
+('Despesas de Escritório'),
+('Outros');
+
+
+CREATE TABLE despesas_recorrentes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(255) NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    dia_do_mes INT NOT NULL, -- O dia em que a despesa acontece (ex: 5 para dia 5)
+    categoria_id INT,
+    veiculo_id INT,
+    criado_por_id INT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (categoria_id) REFERENCES despesas_categorias(id),
+    FOREIGN KEY (veiculo_id) REFERENCES veiculos(id),
+    FOREIGN KEY (criado_por_id) REFERENCES usuarios(id)
+);
+
+ALTER TABLE ordens_servico ADD COLUMN faturada_em DATE DEFAULT NULL;
+
+ALTER TABLE veiculos
+ADD COLUMN consumo_medio DECIMAL(5, 2) DEFAULT 0, -- Em km/litro
+ADD COLUMN odometro_atual INT DEFAULT 0, -- Odomêtro para calcular KM rodados
+ADD COLUMN valor_aquisicao DECIMAL(12, 2) DEFAULT 0; -- Valor do veículo na compra
+
+
+CREATE TABLE gastos_abastecimento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    veiculo_id INT NOT NULL,
+    data_abastecimento DATETIME NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    litros DECIMAL(10, 2) NOT NULL,
+    odometro_registrado INT NOT NULL,
+    FOREIGN KEY (veiculo_id) REFERENCES veiculos(id)
+);
+
+
+
+-- SCRIPT CORRIGIDO - FASE 1
+
+-- Tabela principal para os chamados de suporte
+CREATE TABLE `suporte_chamados` (
+  `id` VARCHAR(36) NOT NULL,
+  `assunto` VARCHAR(255) NOT NULL,
+  `status` ENUM('Aberto', 'Em Análise', 'Aguardando Cliente', 'Resolvido', 'Fechado') NOT NULL DEFAULT 'Aberto',
+  `prioridade` ENUM('Baixa', 'Normal', 'Alta') NOT NULL DEFAULT 'Normal',
+  `criado_por_id` INT NOT NULL,  -- CORREÇÃO: Removido UNSIGNED
+  `criado_por_nome` VARCHAR(100) NOT NULL,
+  `criado_por_email` VARCHAR(100) NOT NULL,
+  `cliente_id` INT NULL,         -- CORREÇÃO: Removido UNSIGNED
+  `atribuido_a_id` INT NULL,     -- CORREÇÃO: Removido UNSIGNED
+  `criado_em` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `atualizado_em` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `fechado_em` TIMESTAMP NULL DEFAULT NULL,
+  `logs_console` TEXT,
+  `logs_rede` TEXT,
+  PRIMARY KEY (`id`)
+  -- As chaves estrangeiras serão adicionadas com ALTER TABLE para maior compatibilidade
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela para armazenar a "Linha do Tempo" de cada chamado
+CREATE TABLE `suporte_mensagens` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `chamado_id` VARCHAR(36) NOT NULL,
+  `remetente_id` INT NOT NULL, -- CORREÇÃO: Removido UNSIGNED
+  `remetente_nome` VARCHAR(100) NOT NULL,
+  `remetente_tipo` ENUM('user', 'support', 'system') NOT NULL,
+  `tipo_mensagem` ENUM('comentario', 'evento_status', 'anexo') NOT NULL DEFAULT 'comentario',
+  `texto` TEXT NOT NULL,
+  `anexo_url` VARCHAR(512) NULL,
+  `anexo_nome` VARCHAR(255) NULL,
+  `anexo_mimetype` VARCHAR(100) NULL,
+  `criado_em` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`chamado_id`) REFERENCES `suporte_chamados`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Adicionando as chaves estrangeiras separadamente
+ALTER TABLE `suporte_chamados` ADD CONSTRAINT `fk_chamado_criado_por` FOREIGN KEY (`criado_por_id`) REFERENCES `usuarios`(`id`) ON DELETE CASCADE;
+ALTER TABLE `suporte_chamados` ADD CONSTRAINT `fk_chamado_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `clientes_sistema`(`id`) ON DELETE SET NULL;
+ALTER TABLE `suporte_chamados` ADD CONSTRAINT `fk_chamado_atribuido_a` FOREIGN KEY (`atribuido_a_id`) REFERENCES `usuarios`(`id`) ON DELETE SET NULL;
+ALTER TABLE `suporte_mensagens` ADD CONSTRAINT `fk_mensagem_remetente` FOREIGN KEY (`remetente_id`) REFERENCES `usuarios`(`id`) ON DELETE CASCADE;
+
+
+
+ALTER TABLE `suporte_chamados` 
+MODIFY COLUMN `logs_console` MEDIUMTEXT,
+MODIFY COLUMN `logs_rede` MEDIUMTEXT;
+
+
+
+-- Adicione esta coluna na sua tabela `suporte_chamados`
+ALTER TABLE suporte_chamados
+ADD COLUMN atribuido_a_id INT NULL,
+ADD FOREIGN KEY (atribuido_a_id) REFERENCES usuarios(id) ON DELETE SET NULL;
+
+
+
+ALTER TABLE suporte_chamados MODIFY COLUMN status VARCHAR(30) NOT NULL;
+
+
+CREATE TABLE veiculos_manutencoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    veiculo_id INT NOT NULL,
+    data DATE NOT NULL,
+    tipo VARCHAR(100) NOT NULL, -- Ex: "Troca de óleo", "Revisão", "Troca de pneus"
+    custo DECIMAL(10, 2) NOT NULL,
+    descricao TEXT,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (veiculo_id) REFERENCES veiculos(id) ON DELETE CASCADE
+);
+
+ALTER TABLE veiculos_manutencoes
+ADD COLUMN anexo_path VARCHAR(255) NULL AFTER descricao;
+
+ALTER TABLE veiculos_manutencoes
+ADD COLUMN despesa_id INT NULL UNIQUE,
+ADD CONSTRAINT fk_despesa_id
+FOREIGN KEY (despesa_id) REFERENCES despesas(id) ON DELETE SET NULL;
+
+
+ALTER TABLE financeiro ADD COLUMN despesa_id INT NULL UNIQUE;
+
+
+CREATE TABLE `manutencoes_agendadas` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `cliente_id` INT NULL,
+  `data_inicio` DATETIME NOT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'agendada',
+  `criado_por_id` INT NULL,
+  `criado_em` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `cliente_id_idx` (`cliente_id`),
+  CONSTRAINT `fk_manutencao_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `clientes_sistema` (`id`) ON DELETE SET NULL
+);
+
+
+
+ALTER TABLE manutencoes_agendadas ADD COLUMN data_fim DATETIME NOT NULL AFTER data_inicio;
+
+
+ALTER TABLE clientes_sistema MODIFY COLUMN status VARCHAR(20) NOT NULL;
+
+CREATE TABLE `suporte_categorias` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(100) NOT NULL,
+  `ativo` BOOLEAN NOT NULL DEFAULT TRUE,
+  `criado_em` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+
+
+CREATE TABLE `suporte_subcategorias` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `categoria_id` INT NOT NULL,
+  `nome` VARCHAR(100) NOT NULL,
+  `ativo` BOOLEAN NOT NULL DEFAULT TRUE,
+  `criado_em` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`categoria_id`) REFERENCES `suporte_categorias`(`id`) ON DELETE CASCADE
+);
+
+ALTER TABLE `suporte_chamados`
+ADD COLUMN `tipo` ENUM('Incidente', 'Requisição') NOT NULL DEFAULT 'Incidente' AFTER `assunto`,
+ADD COLUMN `categoria_id` INT NULL AFTER `tipo`,
+ADD COLUMN `subcategoria_id` INT NULL AFTER `categoria_id`;
+
+
+CREATE TABLE `suporte_sla_politicas` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `prioridade` VARCHAR(50) NOT NULL UNIQUE,
+  `tempo_primeira_resposta_minutos` INT NOT NULL,
+  `tempo_resolucao_minutos` INT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+ALTER TABLE `suporte_chamados`
+ADD COLUMN `sla_prazo_primeira_resposta` DATETIME NULL AFTER `subcategoria_id`,
+ADD COLUMN `sla_prazo_resolucao` DATETIME NULL AFTER `sla_prazo_primeira_resposta`,
+ADD COLUMN `data_primeira_resposta` DATETIME NULL AFTER `sla_prazo_resolucao`,
+ADD COLUMN `data_resolucao` DATETIME NULL AFTER `data_primeira_resposta`;
+
+-- 1. Tabela para armazenar as avaliações
+CREATE TABLE suporte_avaliacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    chamado_id VARCHAR(36) NOT NULL,
+    usuario_id INT NOT NULL,
+    nota INT NOT NULL, -- (ex: 1 a 5)
+    comentario TEXT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chamado_id) REFERENCES suporte_chamados(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- 2. Adicionar colunas na tabela de chamados para o token e data da avaliação
+ALTER TABLE suporte_chamados
+ADD COLUMN avaliacao_token VARCHAR(255) NULL UNIQUE,
+ADD COLUMN data_avaliacao TIMESTAMP NULL;
+
+
+ALTER TABLE `suporte_categorias`
+ADD COLUMN `tipo_padrao` ENUM('Incidente', 'Requisição') NULL DEFAULT 'Incidente',
+ADD COLUMN `prioridade_padrao` ENUM('Baixa', 'Normal', 'Alta', 'Urgente') NULL DEFAULT 'Normal';
+
+
+CREATE TABLE `suporte_gmud` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `titulo` VARCHAR(255) NOT NULL,
+  `descricao` TEXT NOT NULL,
+  `justificativa` TEXT NOT NULL,
+  `impacto` TEXT COMMENT 'Descrição dos sistemas, clientes ou usuários impactados',
+  `plano_rollback` TEXT COMMENT 'Procedimento de reversão em caso de falha',
+  `tipo` ENUM('Planejada', 'Emergencial', 'Padrão') NOT NULL DEFAULT 'Planejada',
+  `status` ENUM('Pendente', 'Aprovada', 'Rejeitada', 'Em Execução', 'Concluída', 'Cancelada') NOT NULL DEFAULT 'Pendente',
+  `janela_inicio` DATETIME NOT NULL,
+  `janela_fim` DATETIME NOT NULL,
+  `solicitante_id` INT NOT NULL,
+  `aprovador_id` INT NULL,
+  `data_aprovacao` DATETIME NULL,
+  `data_conclusao` DATETIME NULL,
+  `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`solicitante_id`) REFERENCES `usuarios`(`id`),
+  FOREIGN KEY (`aprovador_id`) REFERENCES `usuarios`(`id`)
+) COMMENT='Registros de Gestão de Mudança no Ambiente';
+
+
+ALTER TABLE `suporte_gmud`
+ADD COLUMN `resultado_execucao` TEXT NULL COMMENT 'Descrição detalhada do resultado da mudança (sucesso, falha, rollback, etc.).',
+ADD COLUMN `executado_por_id` INT NULL COMMENT 'ID do usuário que executou a mudança e registrou o resultado.',
+ADD COLUMN `data_real_conclusao` DATETIME NULL COMMENT 'Data e hora em que o resultado foi efetivamente registrado.',
+ADD FOREIGN KEY (`executado_por_id`) REFERENCES `usuarios`(`id`);
+
+
+CREATE TABLE `suporte_gmud_chamados` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `gmud_id` INT NOT NULL,
+  
+  -- ALTERAÇÃO PRINCIPAL AQUI: de INT para VARCHAR(36) para ser compatível com o ID do chamado
+  `chamado_id` VARCHAR(36) NOT NULL, 
+  
+  `criado_em` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  CONSTRAINT `fk_sgc_to_suporte_gmud`
+    FOREIGN KEY (`gmud_id`) REFERENCES `suporte_gmud`(`id`) ON DELETE CASCADE,
+  
+  CONSTRAINT `fk_sgc_to_suporte_chamados`
+    FOREIGN KEY (`chamado_id`) REFERENCES `suporte_chamados`(`id`) ON DELETE CASCADE,
+  
+  UNIQUE KEY `idx_gmud_chamado_unico` (`gmud_id`, `chamado_id`)
+);
+
+
+
+ALTER TABLE usuarios ADD COLUMN telefone VARCHAR(20) NULL DEFAULT NULL;
+
+
+
+CREATE TABLE chat_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'delivered',
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY sender_idx (sender_id),
+    KEY receiver_idx (receiver_id)
+);
+
+
+-- Adiciona o campo 'slug' para a URL amigável de cada cliente.
+-- O 'UNIQUE' garante que não teremos dois clientes com o mesmo identificador.
+ALTER TABLE `clientes_sistema`
+ADD COLUMN `slug` VARCHAR(100) NULL DEFAULT NULL AFTER `nome_empresa`,
+ADD UNIQUE INDEX `slug_UNIQUE` (`slug` ASC);
+
+-- Adiciona os campos para guardar as configurações de personalização em formato JSON.
+-- Seu código já os utiliza, mas vamos garantir que existam.
+ALTER TABLE `clientes_sistema`
+ADD COLUMN `login_config` JSON NULL DEFAULT NULL AFTER `logo_url`,
+ADD COLUMN `sidebar_config` JSON NULL DEFAULT NULL AFTER `login_config`,
+ADD COLUMN `dashboard_config` JSON NULL DEFAULT NULL AFTER `sidebar_config`;
+
+-- Adiciona o campo para invalidar sessões de usuários (essencial para a função "Derrubar Sessões").
+ALTER TABLE `usuarios`
+ADD COLUMN `last_logout_at` TIMESTAMP NULL DEFAULT NULL AFTER `ultimo_login`;
+
+
+ALTER TABLE `usuarios`
+ADD COLUMN `sms_reset_token` VARCHAR(255) NULL,
+ADD COLUMN `sms_reset_expires` DATETIME NULL;
+
+
+ALTER TABLE suporte_chamados
+ADD COLUMN perfil_destino VARCHAR(255) NULL DEFAULT NULL;
+
+
+
+ALTER TABLE suporte_categorias
+ADD COLUMN perfil_destino_padrao VARCHAR(255) NULL DEFAULT NULL;
+
+
+ALTER TABLE suporte_chamados
+ADD COLUMN perfil_destino VARCHAR(255) NULL DEFAULT NULL;
+
+
+-- Garante que o campo 'status' seja NOT NULL e tenha 'Aberto' como valor padrão, 
+-- resolvendo o erro mesmo que ele seja omitido do INSERT.
+ALTER TABLE suporte_chamados
+MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'Aberto';
+
+
+CREATE TABLE sistema_updates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    versao VARCHAR(20),
+    titulo VARCHAR(255) NOT NULL,
+    descricao TEXT NOT NULL,
+    tipo ENUM('manual', 'gmud') NOT NULL,
+    gmud_id INT,
+    data_publicacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    publicado_por_id INT,
+    FOREIGN KEY (gmud_id) REFERENCES suporte_gmud(id) ON DELETE SET NULL,
+    FOREIGN KEY (publicado_por_id) REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+
+ALTER TABLE sistema_updates
+ADD COLUMN categoria ENUM('NOVO', 'MELHORIA', 'CORRECAO') NOT NULL DEFAULT 'MELHORIA' AFTER versao,
+ADD COLUMN imagem_url VARCHAR(255) NULL AFTER descricao;
+
+
+
+CREATE TABLE configuracao_tags (
+    tag_nome VARCHAR(50) PRIMARY KEY,
+    tag_valor TEXT NOT NULL,
+    descricao VARCHAR(255),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE comunicacao_templates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    texto TEXT NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+

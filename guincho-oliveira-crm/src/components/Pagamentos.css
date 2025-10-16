@@ -1,0 +1,160 @@
+/* Layout principal da página */
+.pagamentos-page-layout {
+    display: flex;
+    height: 100vh;
+    background-color: #f7f9fc;
+    overflow: hidden;
+}
+
+/* Coluna da Esquerda (Formulário) */
+.pagamentos-sidebar-form {
+    flex: 0 0 400px;
+    padding: 25px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pagamentos-header {
+    color: #101C5D;
+    margin-bottom: 20px;
+}
+
+.pagamento-form-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.07);
+    margin-top: 20px;
+}
+
+.pagamento-form-card h3 {
+    margin-top: 0;
+    color: #343a40;
+}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: 500; color: #495057; margin-bottom: 5px; font-size: 0.9em; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; }
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.submit-button { width: 100%; padding: 12px; background-color: #FF8C00; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
+.submit-button:hover { background-color: #e57e00; }
+
+/* Coluna da Direita (Conteúdo Principal) */
+.pagamentos-main-content {
+    flex: 1;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: hidden;
+}
+
+.resumo-dashboard { display: flex; gap: 20px; }
+.resumo-card { flex: 1; display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 12px; color: #fff; }
+.resumo-card.receita { background: linear-gradient(135deg, #28a745, #218838); }
+.resumo-card.despesa { background: linear-gradient(135deg, #dc3545, #c82333); }
+.resumo-card.saldo { background: linear-gradient(135deg, #101C5D, #0d1645); }
+.resumo-icon { background-color: rgba(255, 255, 255, 0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.resumo-content h4 { margin: 0 0 5px 0; font-size: 0.9em; font-weight: 400; }
+.resumo-content span { font-size: 1.5em; font-weight: 700; }
+
+/* Linha para Histórico e Gráfico */
+.pagamentos-content-row {
+    display: flex;
+    gap: 20px;
+    flex-grow: 1;
+    overflow: hidden; /* Essencial para o layout funcionar */
+}
+
+.historico-card, .grafico-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.07);
+    display: flex;
+    flex-direction: column;
+}
+
+.historico-card {
+    flex: 1.5; /* Faz o histórico ser um pouco maior que o gráfico */
+    overflow: hidden;
+}
+.grafico-card {
+    flex: 1;
+    overflow: hidden; /* Garante que o gráfico não ultrapasse o card */
+}
+
+.historico-card h3, .grafico-card h3 {
+    margin-top: 0;
+    color: #101C5D;
+}
+
+/* --- ESTILOS PARA FILTROS ATUALIZADOS --- */
+.history-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+    align-items: flex-end; /* Alinha os itens na base */
+}
+.filter-input {
+    flex-grow: 1; /* Faz os inputs crescerem */
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+.reset-button {
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.reset-button:hover {
+    background-color: #5a6268;
+}
+
+.pagamento-list-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.pagamento-list { list-style: none; padding: 0; }
+.pagamento-list li { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e9ecef; border-left: 4px solid #dc3545; }
+
+.list-item-info { display: flex; flex-direction: column; gap: 4px; }
+.pagamento-valor { font-size: 1.2em; font-weight: 700; color: #c82333; }
+.pagamento-descricao { color: #495057; font-weight: 500; }
+.pagamento-meta { font-size: 0.85em; color: #6c757d; }
+
+.list-item-actions { display: flex; gap: 10px; }
+.edit-button, .delete-button { border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: white; font-weight: 500; }
+.edit-button { background-color: #007bff; }
+.delete-button { background-color: #dc3545; }
+
+.no-results { text-align: center; padding: 40px; color: #6c757d; }
+
+.chart-container {
+    width: 100%;
+    height: 100%;
+    min-height: 580px; /* Garante uma altura mínima para o gráfico */
+}
+
+/* Estilos do modal e back-button (reutilizados) */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); position: relative; max-width: 500px; width: 90%; }
+.modal-close-button { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; cursor: pointer; color: #aaa; }
+.modal-close-button:hover { color: #333; }
+.back-button { background-color: #6c757d; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-bottom: 20px; }
+.back-button:hover { background-color: #5a6268; }

@@ -1,0 +1,147 @@
+.gestao-tags-container {
+    padding: 25px;
+    background-color: #f7f9fc;
+    height: calc(100vh - 70px);
+}
+
+.gestao-tags-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.gestao-tags-title {
+    color: #101C5D;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.gestao-tags-subtitle {
+    color: #6c757d;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+.add-new-tag-btn {
+    background-color: #101C5D;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.add-new-tag-btn:hover {
+    background-color: #0d164a;
+}
+
+/* Estilos do Formulário */
+.new-tag-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+}
+.new-tag-form h3 {
+    margin-top: 0;
+    color: #101C5D;
+}
+.new-tag-form .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.new-tag-form input, .new-tag-form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    font-family: inherit;
+    font-size: 1em;
+}
+.new-tag-form button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Estilos da Lista de Tags */
+.tags-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+.tag-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.tag-info label {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+.tag-info code {
+    background-color: #e9ecef;
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #101C5D;
+}
+.tag-info small {
+    display: block;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 5px;
+}
+.tag-card textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    resize: vertical;
+    font-family: inherit;
+}
+.tag-card button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+.tag-card button:hover {
+    background-color: #0056b3;
+}
+.no-tags-message {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #fff;
+    border-radius: 8px;
+}

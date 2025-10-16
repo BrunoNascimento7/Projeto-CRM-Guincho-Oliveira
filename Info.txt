@@ -1,0 +1,2 @@
+MySQL COmmunity Server
+MySQL Workbench

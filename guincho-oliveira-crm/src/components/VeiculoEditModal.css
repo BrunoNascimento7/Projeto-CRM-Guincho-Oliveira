@@ -1,0 +1,135 @@
+/* src/components/VeiculoEditModal.css */
+
+.management-modal .modal-tabs {
+    display: flex;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 25px;
+}
+.management-modal .modal-tabs button {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6c757d;
+    position: relative;
+    transition: color 0.2s ease;
+}
+/* CORREÇÃO: Estilização da aba ativa */
+.management-modal .modal-tabs button.active {
+    color: #101c5d; /* Cor forte */
+    font-weight: 600;
+}
+/* CORREÇÃO: Linha inferior da aba ativa */
+.management-modal .modal-tabs button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px; /* Linha mais grossa e visível */
+    background-color: #101c5d;
+    border-radius: 2px 2px 0 0;
+}
+
+.management-modal .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px 20px;
+}
+
+.management-modal .form-actions-modal {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    border-top: 1px solid #e9ecef;
+    padding-top: 20px;
+}
+
+.maintenance-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.maintenance-form-card, .maintenance-history-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.maintenance-form-card form {
+    display: flex;
+    flex-direction: column;
+}
+
+.maintenance-form-card .submit-button.small {
+    align-self: flex-end;
+    margin-top: 15px;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.history-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.history-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.history-item-info span:first-child {
+    font-size: 0.95rem;
+}
+
+.history-item-info span:last-child {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.history-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.action-link {
+    color: #6c757d;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+.action-link:hover { color: #101c5d; }
+.action-link.delete:hover { color: #dc3545; }
+
+/* Status Financeiros (Aprovada, Paga, Pendente, Rejeitada) */
+.status-badge-financeiro {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.status-badge-financeiro.status-paga { color: #0c5460; background-color: #d1ecf1; }
+.status-badge-financeiro.status-aprovada { color: #155724; background-color: #d4edda; }
+.status-badge-financeiro.status-pendente { color: #856404; background-color: #fff3cd; }
+.status-badge-financeiro.status-rejeitada { color: #721c24; background-color: #f8d7da; }

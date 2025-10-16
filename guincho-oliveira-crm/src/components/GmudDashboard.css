@@ -1,0 +1,118 @@
+/* Em: src/components/GmudDashboard.css */
+
+.admin-dashboard-container {
+    padding: 24px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.dashboard-header h1 {
+    font-size: 1.8rem;
+    color: #101C5D; /* Cor primária do seu sistema */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+}
+
+/* Transforma a área do conteúdo em um "card" */
+.dashboard-content {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* Garante que a borda da tabela respeite o card */
+    overflow: hidden; 
+}
+
+.main-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Estilo do cabeçalho da tabela */
+.main-table thead {
+    background-color: #f8f9fa; /* Um cinza bem claro */
+}
+
+.main-table th, 
+.main-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.main-table th {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Efeito de hover nas linhas para indicar que são clicáveis */
+.main-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.main-table tbody tr:hover {
+    background-color: #f1f3f5; /* Um cinza um pouco mais escuro para o hover */
+    cursor: pointer;
+}
+
+.main-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* O Badge de Status - a parte mais visual! */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border-radius: 15px; /* Formato de pílula */
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap; /* Evita que o texto quebre */
+}
+
+/* Mensagem para quando não há GMUDs */
+.main-table td[colSpan="7"] {
+    padding: 48px;
+    color: #6c757d;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Para o ícone de spinner */
+.loading-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #6c757d;
+    gap: 10px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

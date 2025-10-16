@@ -1,0 +1,440 @@
+/* src/components/SupportAdminSettings.css */
+
+.support-settings-container {
+    padding: 30px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.support-settings-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.support-settings-header h1 {
+    font-size: 2em;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+}
+
+.support-settings-header p {
+    font-size: 1.1em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.categories-grid {
+    display: block;
+}
+
+.category-column {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; 
+    gap: 16px; 
+}
+
+.column-header h2 {
+    margin: 0;
+    color: #343a40;
+    font-size: 1.5em;
+    flex-shrink: 0;
+}
+
+.column-header-sub {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+
+/* ========================================================== */
+/* ========= NOVOS ESTILOS PARA IMPORTAÇÃO/EXPORTAÇÃO ========= */
+/* ========================================================== */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap; 
+    justify-content: flex-end; 
+}
+
+.actions-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.actions-container .btn,
+.btn-add {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.actions-container .btn:hover,
+.btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-modelo {
+    background-color: #007bff;
+}
+.btn-modelo:hover {
+    background-color: #0069d9;
+}
+
+.btn-importar {
+    background-color: #ffc107;
+    color: #212529;
+}
+.btn-importar:hover {
+    background-color: #e0a800;
+}
+
+.btn-exportar {
+    background-color: #1e2a4a;
+}
+.btn-exportar:hover {
+    background-color: #141d33;
+}
+
+.btn-add {
+    background-color: #28a745;
+}
+.btn-add:hover {
+    background-color: #218838;
+}
+
+
+/* ========================================================== */
+/* ========= LISTAS DE CATEGORIA E SUBCATEGORIA ========= */
+/* ========================================================== */
+
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-list > li {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    justify-content: space-between;
+}
+
+.category-main-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; 
+    margin-bottom: 20px; 
+}
+
+.category-name {
+    font-weight: 600;
+    font-size: 1.2em;
+    color: #495057;
+}
+
+.category-actions {
+    display: inline-flex;
+    gap: 10px;
+    margin-left: 15px;
+}
+
+.category-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 1em;
+    transition: color 0.2s;
+}
+
+.category-actions button:hover {
+    color: #343a40;
+}
+
+.subcategory-section {
+    padding-left: 20px;
+    border-left: 3px solid #e9ecef;
+    width: 100%; 
+}
+
+.column-header-sub h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #6c757d;
+}
+
+.btn-add-sub {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-add-sub:hover {
+    background-color: #218838;
+}
+
+.subcategory-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 15px;
+}
+
+.subcategory-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.subcategory-list li:nth-child(odd) {
+    background-color: #fff;
+}
+
+.subcategory-name {
+    color: #495057;
+}
+
+.no-subcategories {
+    color: #adb5bd;
+    font-style: italic;
+    padding: 10px;
+}
+
+/* ========================================================== */
+/* ========= ESTILOS DO MODAL ========= */
+/* ========================================================== */
+
+.modal-overlay-settings {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content-settings {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header-settings {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-header-settings h2 { margin: 0; }
+
+.modal-close-button-settings {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.form-group-settings {
+    margin-bottom: 15px;
+}
+
+.form-group-settings label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-group-settings input, .form-group-settings select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-row-settings {
+    display: flex;
+    gap: 15px;
+}
+
+.modal-footer-settings {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.btn-cancel, .btn-save {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+.btn-save {
+    background-color: #007bff;
+    color: white;
+}
+
+/* ========================================================== */
+/* ========= ESTILOS DE SLA E OUTROS ========= */
+/* ========================================================== */
+
+.section-divider {
+    margin: 40px 0;
+    border-color: #e0e0e0;
+}
+
+.sla-settings-card {
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.settings-description {
+    color: #6c757d;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.sla-table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.sla-table-header, .sla-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.sla-table-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.sla-table-row {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sla-table-row:last-child {
+    border-bottom: none;
+}
+
+.sla-table-row input.form-control {
+    width: 80%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.sla-table-row input.form-control:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn-save-sla {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-save-sla:hover {
+    background-color: #218838;
+}
+
+.loading-view-sla, .loading-view {
+    padding: 20px;
+    font-size: 1.1em;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

@@ -1,0 +1,218 @@
+/* --- VARIAVEIS DE CORES E ESTILOS GLOBAIS --- */
+:root {
+  --primary-color: #101C5D;
+  --secondary-color: #FF8C00;
+  --secondary-color-light: #ffae42;
+  --background-color: #f4f7fa;
+  --card-background-color: #ffffff;
+  --text-color: #343a40;
+  --text-light-color: #6c757d;
+  --border-color: #dde2e7;
+  --input-background: #f8f9fa;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* --- LAYOUT GERAL DA PÁGINA --- */
+.cadastro-ordens-container {
+  padding: 30px 40px;
+  background-color: var(--background-color);
+  min-height: 100vh;
+  font-family: var(--font-family);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.cadastro-ordens-header {
+  color: var(--primary-color);
+  font-size: 2em;
+  font-weight: 700;
+  margin: 0;
+}
+
+.cadastro-ordens-subheader {
+  color: var(--text-light-color);
+  font-size: 1em;
+  margin-top: 4px;
+}
+
+.back-button {
+  background-color: #fff;
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  font-size: 1em;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(16, 28, 93, 0.1);
+}
+
+/* --- CARD DO FORMULÁRIO --- */
+.ordem-form-card {
+  background-color: var(--card-background-color);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.form-section-title {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-divider {
+    border: none;
+    height: 1px;
+    background-color: #e9ecef;
+    margin: 40px 0;
+}
+
+/* --- GRID DO FORMULÁRIO --- */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px 30px; 
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1; 
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 10px;
+  font-size: 0.95em;
+}
+
+.form-group label svg {
+  color: var(--text-light-color);
+}
+
+/* --- ESTILO DOS INPUTS MODERNIZADOS --- */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 1em;
+  background-color: var(--input-background);
+  color: var(--text-color);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-family: inherit;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #adb5bd;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(16, 28, 93, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* --- BOTÃO DE AÇÃO --- */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+
+.submit-button {
+  padding: 14px 35px;
+  background: linear-gradient(45deg, var(--secondary-color), var(--secondary-color-light));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+.submit-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(255, 140, 0, 0.4);
+}
+
+.submit-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cadastro-ordens-container {
+    padding: 20px;
+  }
+  
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .ordem-form-card {
+      padding: 25px;
+  }
+  
+  .form-actions {
+    justify-content: stretch;
+  }
+  
+  .submit-button {
+    width: 100%;
+  }
+}

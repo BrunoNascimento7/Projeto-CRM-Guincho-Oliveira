@@ -1,0 +1,63 @@
+/* src/components/EnviarModal.css */
+.send-options-container {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.send-option-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.2s ease-in-out;
+}
+
+.send-option-card.sms-card {
+    border-left: 5px solid #007bff; /* Azul para SMS */
+}
+
+.send-option-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+.send-option-card .card-header h4 {
+    margin: 0;
+}
+
+.send-option-card p {
+    font-size: 0.9rem;
+    color: var(--text-light-color);
+    margin-bottom: 16px;
+}
+
+.btn-send {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #007bff;
+    color: white;
+}
+.btn-send:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+.btn-send:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.disabled-card {
+    background-color: #f8f9fa;
+    border-left: 5px solid #ccc;
+    opacity: 0.7;
+}

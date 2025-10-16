@@ -1,0 +1,111 @@
+/* Salve em: src/components/AnuncioModal.css (VERSÃO ATUALIZADA) */
+
+.anuncio-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* Z-index alto para ficar na frente de tudo */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.anuncio-modal-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.anuncio-modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+  width: 90%;
+  /* --- ALTERADO: Aumentando a largura máxima do modal --- */
+  max-width: 700px; 
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.anuncio-modal-overlay.visible .anuncio-modal-content {
+    transform: scale(1);
+}
+
+.anuncio-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e9ecef;
+  color: #101C5D; /* Cor primária */
+}
+
+.anuncio-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.anuncio-icon {
+  font-size: 1.8rem;
+}
+
+.anuncio-imagem {
+  width: 100%;
+  /* --- ALTERADO: Aumentando a altura máxima da imagem --- */
+  max-height: 300px; 
+  object-fit: cover;
+}
+
+.anuncio-mensagem {
+  padding: 20px 25px;
+  line-height: 1.6;
+  color: #343a40;
+  white-space: pre-wrap; /* Preserva quebras de linha e espaços */
+}
+
+.anuncio-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding: 15px 25px;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.anuncio-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.anuncio-button:hover {
+    transform: translateY(-2px);
+}
+
+.anuncio-button.close {
+  background-color: #6c757d;
+  color: white;
+}
+.anuncio-button.close:hover {
+    background-color: #5a6268;
+}
+
+.anuncio-button.read {
+  background-color: #FF8C00; /* Cor de destaque */
+  color: white;
+}
+.anuncio-button.read:hover {
+    background-color: #e57e00;
+}

@@ -1,0 +1,131 @@
+/* src/components/SupportAdminDashboard.css (VERSÃO REVISADA, COMPLETA E COM ESTILOS DE SLA) */
+
+.support-admin-container {
+    padding: 30px;
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.support-header { margin-bottom: 30px; }
+.support-header h1 { font-size: 2rem; color: #212529; margin-bottom: 5px; }
+.support-header p { font-size: 1.1rem; color: #6c757d; }
+
+/* --- Grid de Estatísticas (KPIs) --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+.support-stat-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-left: 5px solid var(--card-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.support-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+}
+.stat-icon {
+    font-size: 1.5rem; color: #fff; width: 50px; height: 50px;
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+}
+.stat-info { display: flex; flex-direction: column; }
+.stat-value { font-size: 2.2rem; font-weight: 700; color: #212529; }
+.stat-title { font-size: 0.9rem; color: #6c757d; }
+
+/* --- Seção da Lista de Chamados --- */
+.chamados-list-section {
+    background-color: #fff;
+    padding: 15px 25px 25px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Abas de Navegação --- */
+.tabs-container {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 25px;
+}
+.tab-button {
+    padding: 12px 20px; border: none; background: none; font-size: 1rem;
+    font-weight: 600; color: #6c757d; cursor: pointer;
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+    transition: all 0.2s ease;
+}
+.tab-button:hover { color: #101C5D; }
+.tab-button.active {
+    color: #101C5D;
+    border-bottom-color: #101C5D;
+}
+
+/* --- Tabela de Chamados --- */
+.table-wrapper { overflow-x: auto; }
+.chamados-table { width: 100%; border-collapse: collapse; }
+.chamados-table th,
+.chamados-table td {
+    padding: 16px; text-align: left; border-bottom: 1px solid #e9ecef;
+    white-space: nowrap;
+}
+.chamados-table th {
+    font-size: 0.75rem; font-weight: 700; color: #868e96;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.chamados-table tbody tr { cursor: pointer; transition: background-color 0.15s ease-in-out; }
+.chamados-table tbody tr:hover { background-color: #f8f9fa; }
+.chamados-table tbody tr:last-child td { border-bottom: none; }
+.chamados-table td { color: #495057; font-size: 0.95rem; vertical-align: middle; }
+.chamados-table td:first-child { font-weight: 700; color: #101C5D; font-family: monospace, sans-serif; font-size: 1rem; }
+
+.assunto-cell { display: flex; flex-direction: column; white-space: normal; }
+.tipo-chamado { font-size: 0.8rem; color: #868e96; font-style: italic; margin-top: 2px; }
+
+/* --- Badges --- */
+.badge {
+    padding: 5px 12px; border-radius: 999px; font-size: 0.75rem;
+    font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: help; /* Mostra que há um tooltip */
+}
+.badge-baixa { background-color: #17a2b8; }
+.badge-normal { background-color: #007bff; }
+.badge-alta { background-color: #fd7e14; }
+.badge-urgente { background-color: #dc3545; }
+
+/* --- NOVAS CLASSES PARA BADGES DE SLA --- */
+.badge-sla-ok {
+    background-color: #28a745;
+    color: white;
+}
+.badge-sla-alerta {
+    background-color: #ffc107;
+    color: #212529;
+}
+.badge-sla-violado {
+    background-color: #dc3545;
+    color: white;
+    animation: blinker 1.5s linear infinite;
+}
+.badge-sla-default {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* --- Estados de Carregamento e Vazio --- */
+.loading-view, .empty-state {
+    padding: 50px; text-align: center; font-size: 1.1em; color: var(--text-secondary);
+}
+
+/* --- NOVA ANIMAÇÃO PARA BADGES VIOLADOS --- */
+@keyframes blinker {
+  50% {
+    opacity: 0.5;
+  }
+}

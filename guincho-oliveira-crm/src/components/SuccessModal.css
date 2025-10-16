@@ -1,0 +1,43 @@
+.success-modal-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+.success-modal {
+background-color: #e3f2fd; /* Um tom de azul claro para o fundo /
+padding: 30px;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+text-align: center;
+color: #1976d2; / Um tom de azul mais escuro para o texto */
+max-width: 400px;
+width: 90%;
+}
+
+.success-modal p {
+font-size: 1.2em;
+margin-bottom: 20px;
+}
+
+.success-modal button {
+background-color: #1976d2; /* Tom de azul principal para o botão */
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 1em;
+transition: background-color 0.3s ease;
+}
+
+.success-modal button:hover {
+background-color: #1565c0; /* Um tom ligeiramente mais escuro no hover */
+}

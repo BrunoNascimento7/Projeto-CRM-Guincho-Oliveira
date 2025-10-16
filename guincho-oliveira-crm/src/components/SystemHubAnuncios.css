@@ -1,0 +1,59 @@
+/* Este arquivo herda muitos estilos de classes como .system-hub-container, 
+  .clients-table, .modal-overlay, etc., que já criamos. 
+  As regras abaixo complementam e ajustam o visual para a página de anúncios.
+*/
+
+/* --- Distintivo de Status 'Inativo' --- */
+.status-badge.status-inativo {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* --- Estilos para o Modal de Anúncios --- */
+
+/* Garante que a área de texto seja bem dimensionada */
+.modal-content textarea {
+  width: 100%;
+  min-height: 120px; /* Altura mínima maior para a mensagem */
+  padding: 10px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  font-family: inherit; /* Usa a mesma fonte do resto do app */
+  font-size: 1em;
+  resize: vertical; /* Permite que o usuário redimensione a altura */
+}
+
+/* Cria uma grade com duas colunas para os campos menores */
+.form-grid-half {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Pequeno texto de ajuda abaixo do campo de data */
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.8em;
+  color: #6c757d;
+}
+
+/* Ajuste fino na tabela para melhor visualização */
+.clients-table td, .clients-table th {
+    /* Centraliza o conteúdo de colunas específicas para melhor alinhamento */
+    &:nth-child(2), /* Status */
+    &:nth-child(3), /* Público-Alvo */
+    &:nth-child(4), /* Expira em */
+    &:nth-child(5)  /* Ações */
+    { 
+        text-align: center;
+    }
+
+    /* Garante que o título não quebre o layout se for muito grande */
+    &:nth-child(1) {
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

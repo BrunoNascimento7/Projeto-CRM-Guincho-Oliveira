@@ -1,0 +1,194 @@
+/* --- LAYOUT GERAL --- */
+.page-container {
+    padding: 30px 40px;
+    background-color: #f4f7fa;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* --- CABEÇALHO MAGNÍFICO --- */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.page-header {
+    color: #101C5D;
+    font-size: 2.2em;
+    font-weight: 700;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.back-button-new {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 0.95em;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: transparent;
+    color: #6c757d;
+    border: none;
+}
+.back-button-new:hover {
+    color: #101C5D;
+    background-color: #e9ecef;
+}
+
+.action-buttons-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-left: auto; /* Garante que o grupo fique na direita */
+}
+
+/* --- BOTÕES DE AÇÃO DO CABEÇALHO --- */
+.action-button.download-template, .action-button.import, .action-button.export {
+    padding: 10px 18px;
+    font-size: 0.95em;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+}
+.action-button.download-template { background-color: #1e88e5; color: white; }
+.action-button.download-template:hover { background-color: #176fb9; }
+.action-button.import { background-color: #ffc107; color: #101C5D; }
+.action-button.import:hover:not(:disabled) { background-color: #e0a800; }
+.action-button.import:disabled { background-color: #f8e1a7; cursor: not-allowed; opacity: 0.8; }
+.action-button.export { background-color: #101C5D; color: white; }
+.action-button.export:hover { background-color: #1a2a7a; }
+
+
+/* --- DROPDOWNS --- */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+    border-radius: 8px;
+    overflow: hidden;
+    right: 0;
+    border: 1px solid #eee;
+}
+.dropdown-content a {
+    color: #343a40;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+.dropdown-content a:hover { background-color: #f1f3f5; }
+.dropdown:hover .dropdown-content { display: block; }
+
+
+/* --- CARDS, GRID E FORMULÁRIOS --- */
+.card { background-color: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); margin-bottom: 30px; display: flex; flex-direction: column; }
+.card:last-child { margin-bottom: 0; }
+.card-title { color: #101C5D; font-size: 1.5em; font-weight: 600; margin-top: 0; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
+.page-grid { display: grid; grid-template-columns: 1.5fr 2fr; gap: 30px; align-items: flex-start; }
+.list-column .card:nth-child(2) { flex-grow: 1; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-weight: 600; color: #495057; margin-bottom: 8px; font-size: 1em; }
+.form-group input, .form-group select { width: 100%; padding: 13px 16px; border: 1px solid #dde2e7; border-radius: 8px; box-sizing: border-box; font-size: 1.05em; background-color: #f8f9fa; color: #343a40; transition: border-color 0.3s, box-shadow 0.3s; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #101C5D; background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 28, 93, 0.1); }
+.form-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+
+/* --- LISTA DE CLIENTES --- */
+.list-scroll-container { max-height: 620px; overflow-y: auto; padding-right: 10px; }
+.list { list-style: none; padding: 0; margin: 0; }
+.list-state-message { padding: 40px 20px; text-align: center; color: #6c757d; font-size: 1.1em; }
+.list-state-message.error { color: #d9534f; font-weight: bold; }
+
+
+/* --- CARD DE CLIENTE NA LISTA --- */
+.client-card { background-color: #fff; border: 1px solid #e9ecef; border-radius: 10px; margin-bottom: 12px; transition: all 0.2s ease-in-out; }
+.client-card:hover { border-color: #c1d1e0; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); transform: translateY(-2px); }
+.client-card-header, .client-card-body, .client-card-footer { padding: 0 16px; }
+.client-card-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.1em; color: #333; padding-top: 15px; padding-bottom: 10px; }
+.client-card-header strong { font-weight: 600; }
+.client-card-body { padding-bottom: 10px; font-size: 0.9em; color: #555; border-top: 1px solid #f1f3f5; padding-top: 10px; }
+.client-card-body p { margin: 4px 0; }
+.client-card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; color: #777; padding-bottom: 15px; border-top: 1px solid #f1f3f5; padding-top: 10px; }
+.client-card-footer span { display: flex; align-items: center; gap: 6px; }
+.list-item-actions { display: flex; gap: 8px; }
+
+
+/* --- BOTÕES --- */
+.submit-button { padding: 12px 22px; border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.3s ease; background: linear-gradient(45deg, #FF8C00, #ffae42); color: white; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.25); }
+.submit-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 140, 0, 0.35); }
+.action-button { padding: 8px 14px; border: none; border-radius: 6px; font-size: 0.9em; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+.action-button:hover { opacity: 0.85; }
+.action-button.view { background-color: #17a2b8; color: white; }
+.action-button.edit { background-color: #007bff; color: white; }
+.action-button.delete { background-color: #dc3545; color: white; }
+
+
+/* --- PAGINAÇÃO --- */
+.pagination-controls { display: flex; justify-content: center; align-items: center; padding: 15px 0; gap: 15px; border-top: 1px solid #eee; margin-top: 10px; }
+.pagination-controls button { padding: 8px 16px; border-radius: 5px; border: 1px solid #ccc; background-color: #fff; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.pagination-controls button:hover:not(:disabled) { background-color: #f0f2f5; }
+.pagination-controls button:disabled { background-color: #e9ecef; cursor: not-allowed; opacity: 0.6; }
+.pagination-controls span { font-size: 0.9em; color: #555; }
+
+
+/* --- MODAL --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(16, 28, 93, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+.modal-content { background-color: #ffffff; padding: 30px 40px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); position: relative; max-width: 550px; width: 90%; }
+.modal-content h3 { color: #101C5D; font-size: 1.8em; margin-top: 0; margin-bottom: 30px; }
+.modal-close-button { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2.2em; cursor: pointer; color: #aaa; transition: color 0.2s; }
+.modal-close-button:hover { color: #333; }
+
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 1200px) {
+    .page-header {
+        position: static; /* Remove o posicionamento absoluto */
+        transform: none;
+        text-align: left;
+        width: 100%;
+    }
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    .action-buttons-group {
+        margin-left: 0; /* Remove a margem */
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap; /* Permite que os botões quebrem linha */
+    }
+    .back-button-new {
+        position: absolute; /* Tira o botão do fluxo para não empurrar o título */
+        top: -5px; /* Ajuste fino da posição */
+        right: 0;
+    }
+}
+
+@media (max-width: 992px) {
+    .page-grid { grid-template-columns: 1fr; }
+    .page-container { padding: 20px; }
+}

@@ -1,0 +1,276 @@
+/* Em: src/components/GmudDetailPage.css (VERSÃO FINALÍSSIMA) */
+
+.gmud-detail-page {
+    padding: 24px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* REMOVEMOS COMPLETAMENTE AS REGRAS ANTIGAS PARA '.page-header' */
+
+/* --- GRID DE DETALHES --- */
+.gmud-detail-page .gmud-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Layout de coluna única como você preferiu */
+    gap: 24px;
+}
+
+.gmud-detail-page .detail-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+}
+
+/* V----------- NOVOS ESTILOS PARA O CABEÇALHO DENTRO DO CARD -----------V */
+.gmud-detail-page .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: -24px -24px 20px -24px; /* Faz o header ocupar o padding do card */
+    padding: 20px 24px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.gmud-detail-page .card-header h1 {
+    color: #101C5D;
+    font-size: 1.5rem; /* Ajustado para caber melhor no card */
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gmud-detail-page .card-header .back-button {
+    background: #f1f3f5;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.gmud-detail-page .card-header .back-button:hover {
+    background-color: #e9ecef;
+}
+/* A----------- FIM DOS NOVOS ESTILOS -----------A */
+
+
+.gmud-detail-page .detail-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.gmud-detail-page .detail-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #101C5D;
+}
+
+/* ... (O restante do seu CSS continua exatamente como estava) ... */
+.gmud-detail-page .detail-card h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: #343a40;
+    border-bottom: 1px solid #f1f3f5;
+    padding-bottom: 10px;
+}
+
+.gmud-detail-page .detail-card p {
+    color: #495057;
+    line-height: 1.7;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.gmud-detail-page .detail-description {
+    font-size: 1.1rem;
+    color: #495057;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.gmud-detail-page .detail-meta {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.gmud-detail-page .gmud-detail-footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.gmud-detail-page .status-card .status-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.gmud-detail-page .approval-info {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: #6c757d;
+    line-height: 1.5;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.gmud-detail-page .action-panel {
+    border-left: 4px solid #ffc107;
+    background-color: #fffaf0;
+}
+
+.gmud-detail-page .action-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.gmud-detail-page .action-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.gmud-detail-page .action-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.gmud-detail-page .action-buttons .btn-success { background-color: #28a745; }
+.gmud-detail-page .action-buttons .btn-danger { background-color: #dc3545; }
+
+
+@media (max-width: 992px) {
+    .gmud-detail-page .gmud-detail-footer-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Adicione estas classes ao final do seu GmudDetailPage.css */
+
+.result-text {
+  white-space: pre-wrap;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  line-height: 1.6;
+}
+
+.result-meta {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.result-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.result-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.result-form .btn-primary {
+  margin-top: 1rem;
+  /* Adicione aqui os estilos do seu botão primário ou use uma classe global */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-form .btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.spinner-sm {
+    animation: spin 1s linear infinite;
+}
+
+/* Reutilizando a animação de spinner que você provavelmente já tem */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Adicione ao final de GmudDetailPage.css */
+.linked-tickets-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.linked-tickets-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+.unlink-btn {
+    background: none;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.btn-secondary {
+    /* Estilo genérico para um botão secundário */
+    background-color: #6c757d; color: white; border: none; padding: 8px 12px;
+    border-radius: 4px; cursor: pointer; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+}
