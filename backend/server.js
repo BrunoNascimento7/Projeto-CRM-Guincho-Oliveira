@@ -2143,7 +2143,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 // 2. Rota "catch-all" para servir o index.html do React
 // IMPORTANTE: Esta deve ser uma das ÚLTIMAS rotas, antes do server.listen
 // Ela garante que qualquer rota que não seja uma API caia no seu app React.
-app.get('*', (req, res) => {
+app.get('/{*any}', (req, res) =>{
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
