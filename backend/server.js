@@ -586,7 +586,7 @@ async function getNextOrcamentoUID(connection) {
 }
 
 
-const supportRoutes = require('./routes/routesSupport')(pool, io, authMiddleware, permissionMiddleware, PERMISSAO_SUPORTE, uploadSuporte, onlineUsers, getUser);
+/*const supportRoutes = require('./routes/routesSupport')(pool, io, authMiddleware, permissionMiddleware, PERMISSAO_SUPORTE, uploadSuporte, onlineUsers, getUser);
 const simulatorRoutes = require('./routes/routesSimulator')(pool, authMiddleware, permissionMiddleware, registrarLog, gerarProximoOsId, getNextOrcamentoUID);
 const financialRoutes = require('./routes/routesFinancial')(pool, authMiddleware, permissionMiddleware, registrarLog, uploadRecibo, uploadInMemory);
 const dashboardRoutes = require('./routes/routesDashboard')(pool, authMiddleware, permissionMiddleware); 
@@ -691,7 +691,7 @@ app.use('/api/vehicles', placaRouter);
 app.use('/api/tasks', kanbanRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/templates', templateRoutes);
-app.use('/api', publicRoutes);
+app.use('/api', publicRoutes); */
 
 // --- ROTAS DE ORDENS DE SERVIÇO ---
 app.get('/api/ordens', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional', 'financeiro']), async (req, res) => {
