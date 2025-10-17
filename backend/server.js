@@ -582,11 +582,6 @@ async function getNextOrcamentoUID(connection) {
     return `${prefixo}${String(proximoNumero).padStart(4, '0')}`;
 }
 
-
-const supportRoutes = require('./routes/routesSupport')(pool, io, authMiddleware, permissionMiddleware, PERMISSAO_SUPORTE, uploadSuporte, onlineUsers, getUser);
-const simulatorRoutes = require('./routes/routesSimulator')(pool, authMiddleware, permissionMiddleware, registrarLog, gerarProximoOsId, getNextOrcamentoUID);
-const financialRoutes = require('./routes/routesFinancial')(pool, authMiddleware, permissionMiddleware, registrarLog, uploadRecibo, uploadInMemory);
-const dashboardRoutes = require('./routes/routesDashboard')(pool, authMiddleware, permissionMiddleware); 
 const reportDependencies = { pool, authMiddleware };
 const routeDependencies = {
     pool,
@@ -653,42 +648,55 @@ const kanbanDependencies = {
     registrarLog
 };
 
-const userRoutes = require('./routes/routesUsers')(routeDependencies);
-const logsRoutes = require('./routes/routesLogs')(pool, authMiddleware, permissionMiddleware, Parser);
+const supportRoutes = require('./routes/routesSupport');
+const simulatorRoutes = require('./routes/routesSimulator');
+const financialRoutes = require('./routes/routesFinancial');
+const dashboardRoutes = require('./routes/routesDashboard');
+const userRoutes = require('./routes/routesUsers');
+const logsRoutes = require('./routes/routesLogs');
 const clientRoutes = require('./routes/routesClients');
 const reportRoutes = require('./routes/routesReports');
 const driverRoutes = require('./routes/routesDrivers');
 const vehicleRoutes = require('./routes/routesVehicles');
 const systemHubRoutes = require('./routes/routesSystemHub');
-const supportConfigRoutes = require('./routes/routesSupportConfig')(pool, authMiddleware, permissionMiddleware);
-const routesGmud = require('./routes/routesGmud')(pool, authMiddleware, adminGeralMiddleware, io);
+const supportConfigRoutes = require('./routes/routesSupportConfig');
+const routesGmud = require('./routes/routesGmud');
 const knowledgeRoutes = require('./routes/routesKnowledge');
-const placaRouter = require('./routes/routesConsultaPlaca'); 
-const kanbanRoutes = require('./routes/routesTasks')(kanbanDependencies);
-const tagRoutes = require('./routes/routesTags')(pool, authMiddleware, permissionMiddleware);
-const templateRoutes = require('./routes/routesTemplates')(pool, authMiddleware, permissionMiddleware);
-const publicRoutes = require('./routes/publicRoutes')(pool);
+const placaRouter = require('./routes/routesConsultaPlaca');
+const kanbanRoutes = require('./routes/routesTasks');
+const tagRoutes = require('./routes/routesTags');
+const templateRoutes = require('./routes/routesTemplates');
+const publicRoutes = require('./routes/publicRoutes');
 
 
-app.use('/api', supportRoutes);
-app.use('/api', simulatorRoutes);
-app.use('/', financialRoutes);
-app.use('/api/usuarios', userRoutes);
-app.use('/api/logs', logsRoutes);
-app.use('/api', dashboardRoutes);
+// CORRIJA ESTA SEÇÃO NO SEU CÓDIGO
+
+// Prefixo de financialRoutes corrigido para '/api'
+app.use('/api', financialRoutes(pool, authMiddleware, permissionMiddleware, registrarLog, uploadRecibo, uploadInMemory));
+
+// Chamadas de função padronizadas e prefixos corrigidos
+app.use('/api', supportRoutes(pool, io, authMiddleware, permissionMiddleware, PERMISSAO_SUPORTE, uploadSuporte, onlineUsers, getUser));
+app.use('/api', simulatorRoutes(pool, authMiddleware, permissionMiddleware, registrarLog, gerarProximoOsId, getNextOrcamentoUID));
+app.use('/api/usuarios', userRoutes(routeDependencies));
+app.use('/api/logs', logsRoutes(pool, authMiddleware, permissionMiddleware, Parser));
+app.use('/api', dashboardRoutes(pool, authMiddleware, permissionMiddleware));
 app.use('/api/clients', clientRoutes(clientDependencies));
 app.use('/api/reports', reportRoutes(reportDependencies));
 app.use('/api/drivers', driverRoutes(driverDependencies));
 app.use('/api/vehicles', vehicleRoutes(vehicleDependencies));
 app.use('/api/system-hub', systemHubRoutes(systemHubDependencies));
-app.use('/api/admin/suporte-config', supportConfigRoutes);
-app.use('/api/gmud', routesGmud);
+app.use('/api/admin/suporte-config', supportConfigRoutes(pool, authMiddleware, permissionMiddleware));
+app.use('/api/gmud', routesGmud(pool, authMiddleware, adminGeralMiddleware, io));
 app.use('/api', knowledgeRoutes(pool, authMiddleware, permissionMiddleware));
-app.use('/api/vehicles', placaRouter); 
-app.use('/api/tasks', kanbanRoutes);
-app.use('/api/tags', tagRoutes);
-app.use('/api/templates', templateRoutes);
-app.use('/api', publicRoutes);
+
+// **** CORREÇÃO CRÍTICA AQUI ****
+// A rota de consultar placa agora tem um caminho único e não conflita mais
+app.use('/api/consulta-placa', placaRouter); 
+
+app.use('/api/tasks', kanbanRoutes(kanbanDependencies));
+app.use('/api/tags', tagRoutes(pool, authMiddleware, permissionMiddleware));
+app.use('/api/templates', templateRoutes(pool, authMiddleware, permissionMiddleware));
+app.use('/api', publicRoutes(pool));
 
 // --- ROTAS DE ORDENS DE SERVIÇO ---
 app.get('/api/ordens', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional', 'financeiro']), async (req, res) => {
