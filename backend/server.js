@@ -662,7 +662,6 @@ const systemHubRoutes = require('./routes/routesSystemHub');
 const supportConfigRoutes = require('./routes/routesSupportConfig');
 const routesGmud = require('./routes/routesGmud');
 const knowledgeRoutes = require('./routes/routesKnowledge');
-const placaRouter = require('./routes/routesConsultaPlaca');
 const kanbanRoutes = require('./routes/routesTasks');
 const tagRoutes = require('./routes/routesTags');
 const templateRoutes = require('./routes/routesTemplates');
@@ -688,11 +687,6 @@ app.use('/api/system-hub', systemHubRoutes(systemHubDependencies));
 app.use('/api/admin/suporte-config', supportConfigRoutes(pool, authMiddleware, permissionMiddleware));
 app.use('/api/gmud', routesGmud(pool, authMiddleware, adminGeralMiddleware, io));
 app.use('/api', knowledgeRoutes(pool, authMiddleware, permissionMiddleware));
-
-// **** CORREÇÃO CRÍTICA AQUI ****
-// A rota de consultar placa agora tem um caminho único e não conflita mais
-app.use('/api/consulta-placa', placaRouter); 
-
 app.use('/api/tasks', kanbanRoutes(kanbanDependencies));
 app.use('/api/tags', tagRoutes(pool, authMiddleware, permissionMiddleware));
 app.use('/api/templates', templateRoutes(pool, authMiddleware, permissionMiddleware));
