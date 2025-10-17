@@ -409,7 +409,7 @@ async function authMiddleware(req, res, next) {
     if (!token) return res.status(401).json({ error: 'Formato de token inválido.' });
 
     try {
-        const decoded = jwt.verify(token, SECRET_KEY);
+        const decoded = jwt.verify(token, SECRET_KEY); // Usa a constante SECRET_KEY
 
         const sql = `
             SELECT 
@@ -428,7 +428,6 @@ async function authMiddleware(req, res, next) {
         const user = userRows[0];
 
         if (user.last_logout_at) {
-            // decoded.iat é um timestamp em segundos, então multiplicamos por 1000
             const tokenIssuedAt = decoded.iat * 1000;
             const forcedLogoutAt = new Date(user.last_logout_at).getTime();
 
@@ -460,7 +459,6 @@ async function authMiddleware(req, res, next) {
 
 async function maintenanceMiddleware(req, res, next) {
     
-    // ATENÇÃO: Adicionado o caminho /api/login para evitar loop infinito
     const PUBLIC_PATHS = ['/api/public/system-status', '/api/public/login-info', '/api/public/customize', '/api/login']; 
     
     // 1. Verifica se a rota atual é uma das rotas públicas
@@ -475,14 +473,13 @@ async function maintenanceMiddleware(req, res, next) {
 
         if (maintenanceMode) {
             
-            // --- INÍCIO: Checagem de Admin (CORRIGIDO PARA USAR SECRET_KEY) ---
             let isAdminGeral = false;
             const authHeader = req.headers['authorization'];
             if (authHeader) {
                 const token = authHeader.split(' ')[1];
                 if (token) {
                     try {
-                        // CORREÇÃO CRÍTICA: Usando a constante SECRET_KEY, resolvendo o erro de inicialização.
+                        // CORRIGIDO: Usando a constante SECRET_KEY, eliminando o literal que causava a falha de rota
                         const decoded = require('jsonwebtoken').verify(token, SECRET_KEY); 
                         isAdminGeral = decoded.perfil === 'admin_geral';
                     } catch (err) {
@@ -492,10 +489,9 @@ async function maintenanceMiddleware(req, res, next) {
             }
 
             if (!isAdminGeral) {
-                // 3. Bloqueia o acesso para o usuário comum com status 503
                 return res.status(503).json({ 
                     error: 'O sistema está em manutenção. Tente novamente mais tarde.',
-                    maintenance: true // Flag para o frontend
+                    maintenance: true 
                 });
             }
         }
@@ -503,7 +499,7 @@ async function maintenanceMiddleware(req, res, next) {
         next();
     } catch (error) {
         console.error("Erro no middleware de manutenção:", error);
-        next(); // Permite que a requisição continue se a falha for na busca do DB e não crítica.
+        next(); 
     }
 }
 
