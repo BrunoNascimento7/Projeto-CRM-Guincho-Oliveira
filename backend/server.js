@@ -459,51 +459,52 @@ async function authMiddleware(req, res, next) {
 }
 
 async function maintenanceMiddleware(req, res, next) {
-    
-    const PUBLIC_PATHS = ['/api/public/system-status', '/login']; 
-    
-    // 1. Verifica se a rota atual é uma das rotas públicas
-    if (PUBLIC_PATHS.some(path => req.path.startsWith(path))) {
-        return next();
-    }
+    
+    const PUBLIC_PATHS = ['/api/public/system-status', '/api/public/login-info', '/api/public/customize']; // Adicionei /public/login-info e /public/customize
+    
+    // 1. Verifica se a rota atual é uma das rotas públicas
+    // Corrigido o filtro de rotas públicas
+    if (PUBLIC_PATHS.some(path => req.path.startsWith(path)) || req.path === '/api/login') {
+        return next();
+    }
 
-    try {
-        // 2. Busca o status de manutenção no banco
-        const [[{ valor }]] = await pool.execute("SELECT valor FROM configuracoes_sistema WHERE chave = 'modo_manutencao'");
-        const maintenanceMode = valor === 'true';
+    try {
+        // 2. Busca o status de manutenção no banco
+        const [[{ valor }]] = await pool.execute("SELECT valor FROM configuracoes_sistema WHERE chave = 'modo_manutencao'");
+        const maintenanceMode = valor === 'true';
 
-        if (maintenanceMode) {
-            
-            // --- INÍCIO: Checagem de Admin (Adaptada para ser mais simples) ---
-            let isAdminGeral = false;
-            const authHeader = req.headers['authorization'];
-            if (authHeader) {
-                const token = authHeader.split(' ')[1];
-                if (token) {
-                    try {
-                        
-                        const decoded = require('jsonwebtoken').verify(token, 'SUA_SECRET_KEY'); 
-                        isAdminGeral = decoded.perfil === 'admin_geral';
-                    } catch (err) {
-                        isAdminGeral = false;
-                    }
-                }
-            }
+        if (maintenanceMode) {
+            
+            // --- INÍCIO: Checagem de Admin (CORRIGIDO PARA USAR SECRET_KEY) ---
+            let isAdminGeral = false;
+            const authHeader = req.headers['authorization'];
+            if (authHeader) {
+                const token = authHeader.split(' ')[1];
+                if (token) {
+                    try {
+                        // CORREÇÃO DE BUG CRÍTICO: Usar a constante SECRET_KEY e não uma string literal
+                        const decoded = require('jsonwebtoken').verify(token, SECRET_KEY); 
+                        isAdminGeral = decoded.perfil === 'admin_geral';
+                    } catch (err) {
+                        isAdminGeral = false;
+                    }
+                }
+            }
 
-            if (!isAdminGeral) {
-                // 3. Bloqueia o acesso para o usuário comum com status 503
-                return res.status(503).json({ 
-                    error: 'O sistema está em manutenção. Tente novamente mais tarde.',
-                    maintenance: true // Flag para o frontend
-                });
-            }
-        }
-        
-        next();
-    } catch (error) {
-        console.error("Erro no middleware de manutenção:", error);
-        next(); 
-    }
+            if (!isAdminGeral) {
+                // 3. Bloqueia o acesso para o usuário comum com status 503
+                return res.status(503).json({ 
+                    error: 'O sistema está em manutenção. Tente novamente mais tarde.',
+                    maintenance: true // Flag para o frontend
+                });
+            }
+        }
+        
+        next();
+    } catch (error) {
+        console.error("Erro no middleware de manutenção:", error);
+        next(); 
+    }
 }
 
 function permissionMiddleware(allowedRoles) {
