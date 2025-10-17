@@ -1,8 +1,10 @@
 import axios from 'axios';
-import { toast } from 'react-toastify'; // Vamos usar o mesmo sistema de notificação que você já tem no app
+import { toast } from 'react-toastify';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001', // O endereço do seu servidor backend (removi a barra final por padrão do axios)
+  // AQUI ESTÁ A CORREÇÃO:
+  // Trocamos a URL fixa pela variável de ambiente do create-react-app
+  baseURL: process.env.REACT_APP_API_URL,
 });
 
 // --- PASSO 1: Interceptador de REQUISIÇÕES ---
