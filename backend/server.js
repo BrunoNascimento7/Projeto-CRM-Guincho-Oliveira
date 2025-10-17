@@ -586,7 +586,7 @@ async function getNextOrcamentoUID(connection) {
 }
 
 
-/*const supportRoutes = require('./routes/routesSupport')(pool, io, authMiddleware, permissionMiddleware, PERMISSAO_SUPORTE, uploadSuporte, onlineUsers, getUser);
+const supportRoutes = require('./routes/routesSupport')(pool, io, authMiddleware, permissionMiddleware, PERMISSAO_SUPORTE, uploadSuporte, onlineUsers, getUser);
 const simulatorRoutes = require('./routes/routesSimulator')(pool, authMiddleware, permissionMiddleware, registrarLog, gerarProximoOsId, getNextOrcamentoUID);
 const financialRoutes = require('./routes/routesFinancial')(pool, authMiddleware, permissionMiddleware, registrarLog, uploadRecibo, uploadInMemory);
 const dashboardRoutes = require('./routes/routesDashboard')(pool, authMiddleware, permissionMiddleware); 
@@ -691,8 +691,8 @@ app.use('/api/vehicles', placaRouter);
 app.use('/api/tasks', kanbanRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/templates', templateRoutes);
-app.use('/api', publicRoutes); */
-/*
+app.use('/api', publicRoutes);
+
 // --- ROTAS DE ORDENS DE SERVIÇO ---
 app.get('/api/ordens', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional', 'financeiro']), async (req, res) => {
     const { status, query, motorista_id, data_criacao, data_conclusao } = req.query;
@@ -2063,7 +2063,7 @@ app.post('/api/announcements/global/:id/dismiss', authMiddleware, async (req, re
         res.status(500).json({ error: 'Falha ao processar a solicitação.' }); 
     } 
 }); 
-*/
+
 
 // ====================================================================================
 // --- LÓGICA DE VERIFICAÇÃO (CRON JOB) ---
