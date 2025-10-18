@@ -1,3 +1,4 @@
+console.log("--- INICIANDO SERVIDOR COM A VERSÃO MAIS RECENTE (TESTE CORS) ---");
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
