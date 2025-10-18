@@ -26,15 +26,6 @@ const PERMISSAO_SUPORTE = ['admin_geral', 'admin', 'financeiro', 'operacional'];
 
 require('dotenv').config();
 
-const requiredEnvVars = ['AWS_SES_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'SENDER_EMAIL_ADDRESS'];
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
-if (missingVars.length > 0) {
-    console.error(`❌ Erro Crítico: As seguintes variáveis de ambiente da AWS não foram definidas no seu arquivo .env:`);
-    missingVars.forEach(varName => console.error(`  - ${varName}`));
-    process.exit(1);
-}
-
 const allowedOrigins = [
     'https://projeto-crm-guincho-oliveira.onrender.com', // Sua URL de produção
     'http://localhost:3000'                               // Sua URL de desenvolvimento
@@ -53,6 +44,15 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+const requiredEnvVars = ['AWS_SES_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'SENDER_EMAIL_ADDRESS'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+    console.error(`❌ Erro Crítico: As seguintes variáveis de ambiente da AWS não foram definidas no seu arquivo .env:`);
+    missingVars.forEach(varName => console.error(`  - ${varName}`));
+    process.exit(1);
+}
 
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -1096,42 +1096,52 @@ app.get('/api/compromissos/mes', authMiddleware, async (req, res) => {
 });
 
 
-app.get('/api/public/login-info/:identificador', async (req, res) => {
-    try {
-        const { identificador } = req.params;
-        
-        // Busca o cliente pelo identificador (você precisa criar essa coluna no seu banco)
-        const [rows] = await pool.execute(
-            'SELECT nome_empresa, descricao, logo_url, login_image_url FROM clientes_sistema WHERE identificador = ? AND status = "ativo"',
-            [identificador]
-        );
+    // ✅ ROTA PÚBLICA PARA VERIFICAR O MODO MANUTENÇÃO
+    // Rota: GET /api/public/system-status
+    router.get('/public/system-status', async (req, res) => {
+        try {
+            const [[config]] = await pool.execute(
+                "SELECT valor FROM configuracoes_sistema WHERE chave = 'modo_manutencao'"
+            );
 
-        if (rows.length === 0) {
-            // Se não encontrar, pode retornar um erro ou dados padrão
-            return res.status(404).json({ error: 'Cliente não encontrado ou inativo.' });
+            if (!config) {
+                console.warn("Aviso: Chave 'modo_manutencao' não encontrada no banco. Assumindo 'false'.");
+                return res.json({ maintenanceMode: false });
+            }
+
+            res.json({ maintenanceMode: config.valor === 'true' });
+
+        } catch (error) {
+            console.error("Falha ao buscar status público de manutenção:", error.message);
+            res.status(500).json({ 
+                maintenanceMode: false, 
+                error: "Falha ao verificar o status do servidor." 
+            });
         }
+    });
 
-        res.json(rows[0]);
+    // ✅ ROTA PÚBLICA PARA BUSCAR INFORMAÇÕES DE LOGIN PERSONALIZADO
+    // Rota: GET /api/public/login-info/:identificador
+    router.get('/public/login-info/:identificador', async (req, res) => {
+        try {
+            const { identificador } = req.params;
+            
+            const [rows] = await pool.execute(
+                'SELECT nome_empresa, descricao, logo_url, login_image_url FROM clientes_sistema WHERE identificador = ? AND status = "ativo"',
+                [identificador]
+            );
 
-    } catch (error) {
-        console.error("Erro ao buscar informações públicas do cliente:", error.message);
-        res.status(500).json({ error: 'Falha ao carregar informações de login.' });
-    }
-});
+            if (rows.length === 0) {
+                return res.status(404).json({ error: 'Cliente não encontrado ou inativo.' });
+            }
 
-// ✅ NOVA ROTA PÚBLICA PARA VERIFICAR O MODO MANUTENÇÃO
-app.get('/api/public/system-status', async (req, res) => {
-    try {
-        const [[{ valor }]] = await pool.execute(
-            "SELECT valor FROM configuracoes_sistema WHERE chave = 'modo_manutencao'"
-        );
-        res.json({ maintenanceMode: valor === 'true' });
-    } catch (error) {
-        // Em caso de erro, assume que não está em manutenção para não travar o sistema
-        console.error("Falha ao buscar status público de manutenção:", error);
-        res.json({ maintenanceMode: false });
-    }
-});
+            res.json(rows[0]);
+
+        } catch (error) {
+            console.error("Erro ao buscar informações públicas do cliente:", error.message);
+            res.status(500).json({ error: 'Falha ao carregar informações de login.' });
+        }
+    });
 
 // ROTA DE GESTÃO: Usada pela tela de Gestão de Conteúdo para listar as imagens
 app.get('/api/slideshow/manage/images', authMiddleware, permissionMiddleware(['admin_geral', 'admin']), async (req, res) => {
