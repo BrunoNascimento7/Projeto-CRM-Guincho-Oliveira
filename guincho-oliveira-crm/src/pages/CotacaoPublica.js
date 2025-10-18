@@ -18,7 +18,7 @@ export default function CotacaoPublica() {
         const fetchCotacao = async () => {
             try {
                 // Use a variável de ambiente para a URL da API, se tiver configurado
-                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001'; // Ajuste a porta se o seu backend não for 3001
+                const apiUrl = process.env.REACT_APP_API_URL || 'https://projeto-crm-guincho-oliveira.onrender.com'; // Ajuste a porta se o seu backend não for 3001
                 const response = await axios.get(`${apiUrl}/api/public/cotacao/${uid}`);
                 setCotacao(response.data);
             } catch (err) {

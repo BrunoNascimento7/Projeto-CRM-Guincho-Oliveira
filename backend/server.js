@@ -35,7 +35,7 @@ if (missingVars.length > 0) {
 }
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://projeto-crm-guincho-oliveira.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

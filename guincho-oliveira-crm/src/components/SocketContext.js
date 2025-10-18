@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 // --- MUDANÇA 1 (A mais importante) ---
 // Criamos a instância do socket aqui fora, uma única vez.
 // Usamos a opção `autoConnect: false` para que ele espere o login do usuário para se conectar.
-const socketInstance = io("http://localhost:3001", { autoConnect: false });
+const socketInstance = io("https://projeto-crm-guincho-oliveira.onrender.com", { autoConnect: false });
 
 const SocketContext = createContext(null);
 
