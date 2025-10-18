@@ -34,11 +34,25 @@ if (missingVars.length > 0) {
     process.exit(1);
 }
 
+const allowedOrigins = [
+    'https://projeto-crm-guincho-oliveira.onrender.com', // Sua URL de produção
+    'http://localhost:3000'                               // Sua URL de desenvolvimento
+];
+
 app.use(cors({
-  origin: 'https://projeto-crm-guincho-oliveira.onrender.com',
+  origin: function (origin, callback) {
+    // Permite requisições sem 'origin' (como apps mobile ou Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'A política de CORS para este site não permite acesso da Origem especificada.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
