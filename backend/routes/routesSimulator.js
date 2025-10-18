@@ -328,7 +328,7 @@ router.post('/orcamentos/:id/enviar-sms', authMiddleware, async (req, res) => {
         const valorFormatado = parseFloat(orcamento.valor_total).toFixed(2).replace('.', ',');
 
         // IMPORTANTE: Configure esta variável no seu arquivo .env
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'; 
+        const frontendUrl = process.env.FRONTEND_URL || 'https://projeto-crm-guincho-oliveira.onrender.com'; 
         const publicLink = `${frontendUrl}/cotacao/${orcamento.orcamento_uid}`;
 
         const cleanTelefone = telefone.replace(/\D/g, '');

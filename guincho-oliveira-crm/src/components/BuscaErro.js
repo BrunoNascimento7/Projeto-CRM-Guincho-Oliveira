@@ -5,7 +5,7 @@ import axios from 'axios'; // Importa o axios diretamente
 // Em um ambiente de teste isolado, a importação de outros arquivos pode falhar.
 // Esta versão é autossuficiente e funcionará quando você a adicionar ao seu projeto.
 const api = axios.create({
-  baseURL: 'http://localhost:3001',
+  baseURL: 'https://projeto-crm-guincho-oliveira.onrender.com',
 });
 
 // Adiciona o interceptor que anexa o token em todas as requisições
