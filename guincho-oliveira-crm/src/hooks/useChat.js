@@ -22,7 +22,7 @@ export const useChat = (user, activeChatUserId, isChatOpen) => {
         }
 
         if (!socket.current) {
-            socket.current = io(process.env.REACT_APP_API_BASE_URL || "http://localhost:3001");
+            socket.current = io(process.env.REACT_APP_API_BASE_URL || "https://projeto-crm-guincho-oliveira.onrender.com");
         }
 
         const currentSocket = socket.current;
