@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 const api = axios.create({
   // AQUI ESTÁ A CORREÇÃO:
   // Trocamos a URL fixa pela variável de ambiente do create-react-app
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: 'https://projeto-crm-guincho-oliveira.onrender.com'
 });
 
 // --- PASSO 1: Interceptador de REQUISIÇÕES ---
