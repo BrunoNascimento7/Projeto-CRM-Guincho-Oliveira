@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import './QuickClientModal.css'; // Criaremos este CSS simples
 
-const api = axios.create({ baseURL: 'http://localhost:3001' });
+const api = axios.create({ baseURL: 'https://projeto-crm-guincho-oliveira.onrender.com' });
 
 export default function QuickClientModal({ onClose, onClientCreated }) {
     const [newClient, setNewClient] = useState({
