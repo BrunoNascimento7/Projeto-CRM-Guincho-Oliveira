@@ -1098,7 +1098,7 @@ app.get('/api/compromissos/mes', authMiddleware, async (req, res) => {
 
     // ✅ ROTA PÚBLICA PARA VERIFICAR O MODO MANUTENÇÃO
     // Rota: GET /api/public/system-status
-    router.get('/public/system-status', async (req, res) => {
+    app.get('/api/public/system-status', async (req, res) => {
         try {
             const [[config]] = await pool.execute(
                 "SELECT valor FROM configuracoes_sistema WHERE chave = 'modo_manutencao'"
@@ -1122,7 +1122,7 @@ app.get('/api/compromissos/mes', authMiddleware, async (req, res) => {
 
     // ✅ ROTA PÚBLICA PARA BUSCAR INFORMAÇÕES DE LOGIN PERSONALIZADO
     // Rota: GET /api/public/login-info/:identificador
-    router.get('/public/login-info/:identificador', async (req, res) => {
+    app.get('/api/public/login-info/:identificador', async (req, res) => {
         try {
             const { identificador } = req.params;
             
