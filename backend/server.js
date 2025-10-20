@@ -102,7 +102,10 @@ const uploadLogo = multer({ storage: storageLogos });
 
 const storageSlideshow = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/slideshow');
+        const dir = 'uploads/slideshow';
+        // A linha abaixo é a mágica: ela cria a pasta se ela não existir
+        fs.mkdirSync(dir, { recursive: true }); 
+        cb(null, dir);
     },
     filename: function (req, file, cb) {
         cb(null, `slide-${Date.now()}${path.extname(file.originalname)}`);
