@@ -43,15 +43,17 @@ export default function Financeiro() {
             if (filtrosAtuais.dataInicio) params.append('dataInicio', filtrosAtuais.dataInicio);
             if (filtrosAtuais.dataFim) params.append('dataFim', filtrosAtuais.dataFim);
 
+            // ==================== CORREÇÃO APLICADA AQUI ====================
             const [transacoesRes, motoristasRes, categoriasRes] = await Promise.all([
-                api.get('/financeiro', { ...config, params }),
-                api.get('/api/drivers', config), // CORRIGIDO: de /api/motoristas para /api/drivers
-                api.get('/categorias-financeiras', config)
+                api.get('/api/financeiro', { ...config, params }), // ADICIONE O PREFIXO '/api'
+                api.get('/api/drivers', config),
+                api.get('/api/categorias-financeiras', config) // ADICIONE O PREFIXO '/api'
             ]);
+            // ================================================================
             
-            // CORREÇÃO APLICADA AQUI:
             setTransacoes(transacoesRes.data || []);
-            setMotoristas(motoristasRes.data.data || []); // Extrai o array de motoristas da chave "data"
+            // A linha abaixo está correta, pois a rota /api/drivers retorna um objeto { data: [...] }
+            setMotoristas(motoristasRes.data.data || []); 
             setCategorias(categoriasRes.data || []);
 
         } catch (error) {

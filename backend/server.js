@@ -1046,21 +1046,20 @@ app.get('/api/clientes-sistema/list', authMiddleware, permissionMiddleware(['adm
 
 // ROTA PARA BUSCAR COMPROMISSOS (OS NA FILA E AGENDADAS) PARA O CALENDÁRIO DO DASHBOARD
 app.get('/api/compromissos', authMiddleware, async (req, res) => {
-    const { data } = req.query; // Espera uma data no formato YYYY-MM-DD
+    const { data } = req.query; 
 
     if (!data) {
         return res.status(400).json({ error: 'A data é um parâmetro obrigatório.' });
     }
 
     try {
-        // Busca Ordens de Serviço com status 'Agendado' OU 'Na Fila' para a data especificada.
-        // Isso garante que OS recém-criadas apareçam imediatamente.
+        // CORREÇÃO: data_criacao -> data_hora
         const sql = `
             SELECT os.id, c.nome AS cliente_nome 
             FROM ordens_servico os
             LEFT JOIN clientes c ON os.cliente_id = c.id
-            WHERE DATE(os.data_criacao) = ? AND os.status IN ('Agendado', 'Na Fila')
-            ORDER BY os.data_criacao ASC
+            WHERE DATE(os.data_hora) = ? AND os.status IN ('Agendado', 'Na Fila')
+            ORDER BY os.data_hora ASC
         `;
         const [compromissos] = await pool.execute(sql, [data]);
         res.json(compromissos);
@@ -1070,7 +1069,7 @@ app.get('/api/compromissos', authMiddleware, async (req, res) => {
     }
 });
 
-// ROTA PARA BUSCAR DIAS COM COMPROMISSOS EM UM MÊS ESPECÍFICO (PARA MARCAR O CALENDÁRIO)
+// SUBSTITUA A ROTA /api/compromissos/mes PELA VERSÃO ABAIXO:
 app.get('/api/compromissos/mes', authMiddleware, async (req, res) => {
     const { ano, mes } = req.query;
 
@@ -1079,16 +1078,16 @@ app.get('/api/compromissos/mes', authMiddleware, async (req, res) => {
     }
 
     try {
+        // CORREÇÃO: data_criacao -> data_hora
         const sql = `
-            SELECT DISTINCT DATE_FORMAT(data_criacao, '%Y-%m-%d') AS dia
+            SELECT DISTINCT DATE_FORMAT(data_hora, '%Y-%m-%d') AS dia
             FROM ordens_servico
             WHERE 
-                YEAR(data_criacao) = ? AND 
-                MONTH(data_criacao) = ? AND 
+                YEAR(data_hora) = ? AND 
+                MONTH(data_hora) = ? AND 
                 status IN ('Agendado', 'Na Fila')
         `;
         const [rows] = await pool.execute(sql, [ano, mes]);
-        // Extrai apenas as datas para um array simples: [ '2023-09-15', '2023-09-22' ]
         const dias = rows.map(r => r.dia); 
         res.json(dias);
     } catch (err) {

@@ -11,17 +11,18 @@ module.exports = (pool, authMiddleware, permissionMiddleware) => {
 router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro', 'operacional']), async (req, res) => {
     const { periodo, dataInicio, dataFim } = req.query;
     
+    // ... (a lógica de criação dos filtros de data permanece a mesma) ...
     let financeiroConditions = [];
     let despesasConditions = [];
     let osConditions = [];
     let params = [];
     let numParams = 0;
 
-    // --- Lógica para determinar o filtro de data ---
     if (dataInicio && dataFim) {
         financeiroConditions.push('DATE(data) BETWEEN ? AND ?');
         despesasConditions.push('DATE(data_pagamento) BETWEEN ? AND ?');
-        osConditions.push("DATE(data_conclusao) BETWEEN ? AND ?");
+        // CORREÇÃO AQUI: data_conclusao -> data_resolucao
+        osConditions.push("DATE(data_resolucao) BETWEEN ? AND ?");
         params.push(dataInicio, dataFim, dataInicio, dataFim, dataInicio, dataFim);
         numParams = 6;
     } else {
@@ -31,27 +32,18 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         
         let filter = '';
         switch (periodo) {
-            case 'hoje':
-                filter = 'DATE(data) = CURDATE()';
-                break;
-            case 'semanal':
-                filter = 'YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)';
-                break;
-            case 'anual':
-                filter = `YEAR(data) = ${year}`;
-                break;
-            case 'mensal':
-            default:
-                filter = `YEAR(data) = ${year} AND MONTH(data) = ${month}`;
-                break;
+            case 'hoje': filter = 'DATE(data) = CURDATE()'; break;
+            case 'semanal': filter = 'YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)'; break;
+            case 'anual': filter = `YEAR(data) = ${year}`; break;
+            case 'mensal': default: filter = `YEAR(data) = ${year} AND MONTH(data) = ${month}`; break;
         }
         financeiroConditions.push(filter);
         despesasConditions.push(filter.replace(/\bdata\b/g, 'data_pagamento'));
-        osConditions.push(filter.replace(/\bdata\b/g, 'data_conclusao'));
+        // CORREÇÃO AQUI: data_conclusao -> data_resolucao
+        osConditions.push(filter.replace(/\bdata\b/g, 'data_resolucao'));
     }
 
     try {
-        // 1. Consulta Principal (Faturamento e Despesas da tabela 'financeiro')
         const mainQuery = `
             SELECT
                 SUM(CASE WHEN UPPER(tipo) = 'RECEITA' THEN valor ELSE 0 END) AS faturamento,
@@ -60,24 +52,22 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
             WHERE ${financeiroConditions.join(' AND ')}
         `;
         
-        // 2. Consulta de Despesas Adicionais (da tabela 'despesas')
         const despesasAdicionaisQuery = `
             SELECT COALESCE(SUM(valor), 0) AS despesas_adicionais
             FROM \`despesas\`
             WHERE status = 'Paga' AND ${despesasConditions.join(' AND ')}
         `;
         
-        // 3. Consulta de OS Concluídas (o ponto de falha no seu log)
+        // CORREÇÃO APLICADA NA CONSULTA ABAIXO
         const osQuery = `
-    SELECT COUNT(id) AS total 
-    FROM \`ordens_servico\`
-    WHERE UPPER(status) = 'CONCLUÍDO' 
-    AND ${osConditions[0]}
-`;
+            SELECT COUNT(id) AS total 
+            FROM \`ordens_servico\`
+            WHERE UPPER(status) = 'CONCLUÍDO' 
+            AND ${osConditions[0]}
+        `;
         
         const metaQuery = "SELECT valor FROM configuracoes WHERE chave = 'meta_lucro_mensal'";
 
-        // Mapeia os parâmetros para as consultas na ordem correta
         const paramsMain = numParams === 6 ? [params[0], params[1]] : [];
         const paramsDespesas = numParams === 6 ? [params[2], params[3]] : [];
         const paramsOS = numParams === 6 ? [params[4], params[5]] : [];
@@ -88,22 +78,22 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
             [osResult],
             [metaResult]
         ] = await Promise.all([
-            pool.execute(mainQuery, paramsMain), 
+            pool.execute(mainQuery, paramsMain), 
             pool.execute(despesasAdicionaisQuery, paramsDespesas), 
-            pool.execute(osQuery, paramsOS), 
+            pool.execute(osQuery, paramsOS), 
             pool.execute(metaQuery)
         ]);
 
-        const faturamento = parseFloat(mainResult[0].faturamento || 0);
-        const despesasFinanceiro = parseFloat(mainResult[0].despesas_financeiro || 0);
-        const despesasAdicionais = parseFloat(despesasAdicionaisResult[0].despesas_adicionais || 0);
+        const faturamento = parseFloat(mainResult.faturamento || 0);
+        const despesasFinanceiro = parseFloat(mainResult.despesas_financeiro || 0);
+        const despesasAdicionais = parseFloat(despesasAdicionaisResult.despesas_adicionais || 0);
         const despesasTotais = despesasFinanceiro + despesasAdicionais;
         
         res.json({
             faturamento,
             despesas: despesasTotais,
             lucro: faturamento - despesasTotais,
-            servicosConcluidos: parseInt(osResult[0].total || 0),
+            servicosConcluidos: parseInt(osResult.total || 0),
             metaLucro: parseFloat(metaResult[0]?.valor || 10000),
         });
     } catch (err) {
