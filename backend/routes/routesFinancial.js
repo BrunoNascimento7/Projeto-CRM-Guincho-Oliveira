@@ -99,7 +99,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para buscar as categorias de despesas
-    router.get('/api/gastos/categorias', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
+    router.get('/gastos/categorias', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
         try {
             const [categorias] = await pool.execute('SELECT * FROM despesas_categorias ORDER BY nome ASC');
             res.json(categorias);
@@ -109,7 +109,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para listar os gastos com filtros
-    router.get('/api/gastos', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
+    router.get('/gastos', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
         try {
             // Futuramente, adicionar filtros por data, status, etc. via req.query
             const sql = `
@@ -133,7 +133,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para criar um novo gasto (VERSÃO MODIFICADA PARA SINCRONIZAR MANUTENÇÃO)
-    router.post('/api/gastos', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), uploadRecibo.single('anexo'), async (req, res) => {
+    router.post('/gastos', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), uploadRecibo.single('anexo'), async (req, res) => {
         // 1. Pegamos uma conexão do pool para usar em uma transação
         const connection = await pool.getConnection();
 
@@ -280,7 +280,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
 });
 
     // Rota para EDITAR um gasto existente
-    router.post('/api/gastos/:id', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), uploadRecibo.single('anexo'), async (req, res) => {
+    router.post('/gastos/:id', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), uploadRecibo.single('anexo'), async (req, res) => {
         try {
             const { id } = req.params;
             const { descricao, valor, data_vencimento, status, categoria_id, veiculo_id, justificativa } = req.body;
@@ -314,7 +314,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para DELETAR um gasto
-    router.delete('/api/gastos/:id', authMiddleware, permissionMiddleware(['admin_geral', 'financeiro']), async (req, res) => {
+    router.delete('/gastos/:id', authMiddleware, permissionMiddleware(['admin_geral', 'financeiro']), async (req, res) => {
         const { id } = req.params;
         try {
             await pool.execute('DELETE FROM despesas WHERE id = ?', [id]);
@@ -329,7 +329,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // ROTA PARA OBTER OS DADOS DO FLUXO DE CAIXA PROJETADO
-    router.get('/api/fluxo-caixa/projetado', authMiddleware, permissionMiddleware(PERMISSAO_FLUXO_CAIXA), async (req, res) => {
+    router.get('/fluxo-caixa/projetado', authMiddleware, permissionMiddleware(PERMISSAO_FLUXO_CAIXA), async (req, res) => {
         const { dias = 90 } = req.query; // Recebe o número de dias para a projeção
         const today = new Date();
         const futureDate = new Date();
@@ -414,7 +414,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // ROTA PARA FATURAR UMA ORDEM DE SERVIÇO
-    router.post('/api/ordens/:id/faturar', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro']), async (req, res) => {
+    router.post('/ordens/:id/faturar', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro']), async (req, res) => {
         const { id: osId } = req.params;
         const { id: usuarioId, nome: usuarioNome } = req.user;
         const connection = await pool.getConnection();
@@ -469,7 +469,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para buscar o preço médio do combustível por cidade/estado
-    router.get('/api/preco-combustivel', authMiddleware, permissionMiddleware(PERMISSAO_RENTABILIDADE_FROTA), async (req, res) => {
+    router.get('/preco-combustivel', authMiddleware, permissionMiddleware(PERMISSAO_RENTABILIDADE_FROTA), async (req, res) => {
         try {
             const { cidade, estado } = req.query;
             if (!cidade || !estado) {
@@ -495,7 +495,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para a Análise de Rentabilidade da Frota
-    router.get('/api/rentabilidade/frota', authMiddleware, permissionMiddleware(PERMISSAO_RENTABILIDADE_FROTA), async (req, res) => {
+    router.get('/rentabilidade/frota', authMiddleware, permissionMiddleware(PERMISSAO_RENTABILIDADE_FROTA), async (req, res) => {
         const { periodo = 'mensal' } = req.query;
 
         let dataCondition;
@@ -573,7 +573,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
 
 
     // --- ROTAS DE GASTOS COMBUSTÍVEL E CUSTO POR KM ---
-    router.post('/api/gastos/abastecimento', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional']), async (req, res) => {
+    router.post('/gastos/abastecimento', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional']), async (req, res) => {
         const { veiculo_id, data_abastecimento, valor, litros, odometro_registrado } = req.body;
         
         if (!veiculo_id || !data_abastecimento || !valor || !litros || !odometro_registrado) {
@@ -605,7 +605,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
         }
     });
 
-    router.get('/api/rentabilidade/custo-km', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro']), async (req, res) => {
+    router.get('/rentabilidade/custo-km', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro']), async (req, res) => {
         try {
             const sql = `
                 SELECT
@@ -638,7 +638,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
 
 
     // --- ROTAS DE CONCILIAÇÃO BANCÁRIA ---
-    router.post('/api/financeiro/conciliacao/upload', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), uploadInMemory.single('extrato'), async (req, res) => {
+    router.post('/financeiro/conciliacao/upload', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), uploadInMemory.single('extrato'), async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: 'Nenhum arquivo de extrato enviado.' });
         }
@@ -664,7 +664,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
         }
     });
 
-    router.get('/api/financeiro/conciliacao/transacoes-sistema', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
+    router.get('/financeiro/conciliacao/transacoes-sistema', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
         const { dataInicio, dataFim } = req.query;
         if (!dataInicio || !dataFim) {
             return res.status(400).json({ error: 'As datas de início e fim são obrigatórias.' });
@@ -678,7 +678,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
         }
     });
     
-    router.post('/api/financeiro/conciliacao/confirmar', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
+    router.post('/financeiro/conciliacao/confirmar', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
         const { financeiroId } = req.body;
         if (!financeiroId) {
             return res.status(400).json({ error: 'O ID do lançamento financeiro é obrigatório.' });
@@ -692,7 +692,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
         }
     });
 
-    router.post('/api/financeiro/conciliacao/criar-lancamento', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
+    router.post('/financeiro/conciliacao/criar-lancamento', authMiddleware, permissionMiddleware(PERMISSAO_FINANCEIRO_AVANCADO), async (req, res) => {
         const { tipo, descricao, valor, data, categoria_id } = req.body;
         const connection = await pool.getConnection();
         try {

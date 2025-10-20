@@ -63,7 +63,7 @@ export default function RelatoriosFinanceiros() {
             const config = { headers: { 'Authorization': `Bearer ${token}` } };
             
             const [transacoesRes, motoristasRes] = await Promise.all([
-                api.get('/financeiro', { ...config, params: filterParams }),
+                api.get('/api/financeiro', { ...config, params: filterParams }),
                 api.get('/api/drivers', config) // <<--- CORREÇÃO 1: URL ajustada
             ]);
             
