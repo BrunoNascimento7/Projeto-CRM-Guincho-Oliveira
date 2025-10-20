@@ -23,7 +23,6 @@ module.exports = (dependencies) => {
     // GET /api/clients/ -> Rota para LISTAR todos os clientes
     // 🚀 NOVA ROTA OTIMIZADA para LISTAR clientes com PAGINAÇÃO e mais DADOS
 router.get('/', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional', 'financeiro']), async (req, res) => {
-    // Garantimos que limit e offset são números inteiros seguros
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const offset = (page - 1) * limit;
@@ -40,29 +39,26 @@ router.get('/', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'o
     }
     
     try {
-        // --- Consulta de Contagem (não muda, já estava correta) ---
         const countSql = `SELECT COUNT(DISTINCT c.id) as total FROM clientes c LEFT JOIN ordens_servico os ON c.id = os.cliente_id ${whereClause}`;
         const [totalResult] = await pool.execute(countSql, params);
         const total = totalResult[0].total;
 
-        // --- Consulta de Dados (COM A CORREÇÃO FINAL) ---
+        // --- Consulta de Dados (COM A CORREÇÃO) ---
         const dataSql = `
             SELECT 
                 c.id, c.nome, c.telefone, c.email, c.endereco, c.cpf_cnpj,
                 COUNT(os.id) as total_servicos,
-                MAX(os.data_conclusao) as ultimo_servico
+                MAX(os.data_resolucao) as ultimo_servico  -- <-- CORREÇÃO AQUI: 'data_conclusao' virou 'data_resolucao'
             FROM clientes c
             LEFT JOIN ordens_servico os ON c.id = os.cliente_id
             ${whereClause}
             GROUP BY c.id, c.nome, c.telefone, c.email, c.endereco, c.cpf_cnpj
             ORDER BY c.nome ASC
-            LIMIT ${limit} OFFSET ${offset} 
-        `; // <<<<<<< A MUDANÇA CRÍTICA ESTÁ AQUI: Injetamos os números diretamente
+            LIMIT ${limit} OFFSET ${offset}
+        `;
         
-        // Agora, os parâmetros são apenas os da cláusula WHERE
         const [rows] = await pool.execute(dataSql, params); 
 
-        // Retorna a resposta
         res.json({
             data: rows,
             pagination: {

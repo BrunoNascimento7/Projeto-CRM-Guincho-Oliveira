@@ -950,26 +950,34 @@ app.get('/api/produtividade/usuario', authMiddleware, async (req, res) => {
     try {
         const endDate = `${dataFim} 23:59:59`;
 
-        const sqlCriadasCount = `SELECT COUNT(id) AS total FROM ordens_servico WHERE criado_por_usuario_id = ? AND data_criacao BETWEEN ? AND ?`;
+        // CORREÇÃO: data_criacao -> data_hora
+        const sqlCriadasCount = `SELECT COUNT(id) AS total FROM ordens_servico WHERE criado_por_usuario_id = ? AND data_hora BETWEEN ? AND ?`;
         const [criadasRows] = await pool.execute(sqlCriadasCount, [usuarioId, dataInicio, endDate]);
-        const sqlConcluidasCount = `SELECT COUNT(id) AS total FROM ordens_servico WHERE concluido_por_usuario_id = ? AND data_conclusao BETWEEN ? AND ?`;
+        
+        // CORREÇÃO: data_conclusao -> data_resolucao
+        const sqlConcluidasCount = `SELECT COUNT(id) AS total FROM ordens_servico WHERE concluido_por_usuario_id = ? AND data_resolucao BETWEEN ? AND ?`;
         const [concluidasRows] = await pool.execute(sqlConcluidasCount, [usuarioId, dataInicio, endDate]);
-        const sqlListaCriadas = `SELECT os.*, c.nome as nome_cliente FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id WHERE os.criado_por_usuario_id = ? AND os.data_criacao BETWEEN ? AND ? ORDER BY os.data_criacao DESC`;
+        
+        // CORREÇÃO: data_criacao -> data_hora
+        const sqlListaCriadas = `SELECT os.*, c.nome as nome_cliente FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id WHERE os.criado_por_usuario_id = ? AND os.data_hora BETWEEN ? AND ? ORDER BY os.data_hora DESC`;
         const [listaCriadas] = await pool.execute(sqlListaCriadas, [usuarioId, dataInicio, endDate]);
-        const sqlListaConcluidas = `SELECT os.*, c.nome as nome_cliente FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id WHERE os.concluido_por_usuario_id = ? AND os.data_conclusao BETWEEN ? AND ? ORDER BY os.data_conclusao DESC`;
+        
+        // CORREÇÃO: data_conclusao -> data_resolucao
+        const sqlListaConcluidas = `SELECT os.*, c.nome as nome_cliente FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id WHERE os.concluido_por_usuario_id = ? AND os.data_resolucao BETWEEN ? AND ? ORDER BY os.data_resolucao DESC`;
         const [listaConcluidas] = await pool.execute(sqlListaConcluidas, [usuarioId, dataInicio, endDate]);
 
+        // CORREÇÃO: data_criacao -> data_hora | data_conclusao -> data_resolucao
         const sqlGrafico = `
             SELECT dia, SUM(criadas) as criadas, SUM(concluidas) as concluidas
             FROM (
-                SELECT DATE_FORMAT(data_criacao, '%Y-%m-%d') as dia, COUNT(id) as criadas, 0 as concluidas
+                SELECT DATE_FORMAT(data_hora, '%Y-%m-%d') as dia, COUNT(id) as criadas, 0 as concluidas
                 FROM ordens_servico
-                WHERE criado_por_usuario_id = ? AND data_criacao BETWEEN ? AND ?
+                WHERE criado_por_usuario_id = ? AND data_hora BETWEEN ? AND ?
                 GROUP BY dia
                 UNION ALL
-                SELECT DATE_FORMAT(data_conclusao, '%Y-%m-%d') as dia, 0 as criadas, COUNT(id) as concluidas
+                SELECT DATE_FORMAT(data_resolucao, '%Y-%m-%d') as dia, 0 as criadas, COUNT(id) as concluidas
                 FROM ordens_servico
-                WHERE concluido_por_usuario_id = ? AND data_conclusao BETWEEN ? AND ?
+                WHERE concluido_por_usuario_id = ? AND data_resolucao BETWEEN ? AND ?
                 GROUP BY dia
             ) as daily_stats
             WHERE dia IS NOT NULL
