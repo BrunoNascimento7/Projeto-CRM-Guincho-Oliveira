@@ -1,27 +1,37 @@
-const mysql = require('mysql2/promise');
-require('dotenv').config();
-const fs = require('fs'); // Módulo para ler ficheiros
-const path = require('path'); // Módulo para lidar com caminhos de ficheiros
+// backend/config/db.js
 
-// Constrói o caminho para o ficheiro ca.pem na raiz do projeto
-const caPath = path.join(__dirname, '..', 'ca.pem');
+const mysql = require('mysql2/promise');
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') }); // Garante que ele ache o .env na pasta backend
+
+// Constrói o caminho correto para o certificado, subindo duas pastas a partir de 'backend/config'
+const caPath = path.join(__dirname, '..', '..', 'DigiCertGlobalRootG2.crt.pem');
+
+// Verifica se o arquivo do certificado existe antes de tentar criar o pool
+if (!fs.existsSync(caPath)) {
+  console.error("❌ ERRO CRÍTICO: Certificado SSL não encontrado no caminho:", caPath);
+  console.error("Verifique se o arquivo 'DigiCertGlobalRootG2.crt.pem' está na raiz do seu projeto.");
+  process.exit(1); // Encerra a aplicação se não encontrar o certificado
+}
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE, // Mantive o seu nome de variável
-    port: process.env.DB_PORT || 4000, // Adicionado a porta do TiDB
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    
-    // --- ADIÇÃO IMPORTANTE ---
-    // Configuração de segurança (SSL) para o TiDB Cloud
-    ssl: {
-        // Lê o ficheiro de certificado que você descarregou
-        ca: fs.readFileSync(caPath)
-    }
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE, // No seu .env está como DB_DATABASE
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 15,
+  queueLimit: 0,
+  connectTimeout: 20000,
+  
+  // --- CONFIGURAÇÃO SSL CORRIGIDA E OBRIGATÓRIA PARA O AZURE ---
+  ssl: {
+    ca: fs.readFileSync(caPath)
+  }
 });
+
+console.log('✅ Pool de conexões com o Banco de Dados Azure MySQL configurado com sucesso.');
 
 module.exports = pool;

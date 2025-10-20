@@ -18,6 +18,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const cron = require('node-cron');
 const { Parser } = require('json2csv');
+const pool = require('./config/db');
 const PERMISSAO_CLIENTES_CRUD = ['admin_geral', 'admin', 'operacional'];
 const PERMISSAO_EDICAO_CONHECIMENTO = ['admin_geral', 'admin', 'conhecimento_manager'];
 const PERMISSAO_FLUXO_CAIXA = ['admin_geral', 'admin', 'financeiro'];
@@ -386,13 +387,6 @@ app.get('/api/chat/unread-summary', authMiddleware, async (req, res) => {
         console.error("Erro ao buscar resumo de não lidas:", error);
         res.status(500).json({ error: "Falha ao buscar resumo de mensagens." });
     }
-});
-
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE
 });
 
 cron.schedule('0 1 * * *', async () => {
