@@ -495,81 +495,86 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
     });
 
     // Rota para a Análise de Rentabilidade da Frota
-    router.get('/rentabilidade/frota', authMiddleware, permissionMiddleware(PERMISSAO_RENTABILIDADE_FROTA), async (req, res) => {
-        const { periodo = 'mensal' } = req.query;
+    router.get('/api/rentabilidade/frota', authMiddleware, permissionMiddleware(PERMISSAO_RENTABILIDADE_FROTA), async (req, res) => {
+    const { periodo = 'mensal' } = req.query;
 
-        let dataCondition;
-        const now = new Date();
+    let dataCondition;
+    const now = new Date();
 
-        switch (periodo) {
-            case 'semanal':
-                dataCondition = `WHERE data_conclusao >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)`;
-                break;
-            case 'anual':
-                dataCondition = `WHERE YEAR(data_conclusao) = YEAR(CURDATE())`;
-                break;
-            case 'mensal':
-            default:
-                dataCondition = `WHERE MONTH(data_conclusao) = MONTH(CURDATE()) AND YEAR(data_conclusao) = YEAR(CURDATE())`;
-                break;
-        }
+    switch (periodo) {
+        case 'semanal':
+            // CORREÇÃO: data_conclusao -> data_resolucao
+            dataCondition = `WHERE data_resolucao >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)`;
+            break;
+        case 'anual':
+            // CORREÇÃO: data_conclusao -> data_resolucao
+            dataCondition = `WHERE YEAR(data_resolucao) = YEAR(CURDATE())`;
+            break;
+        case 'mensal':
+        default:
+            // CORREÇÃO: data_conclusao -> data_resolucao
+            dataCondition = `WHERE MONTH(data_resolucao) = MONTH(CURDATE()) AND YEAR(data_resolucao) = YEAR(CURDATE())`;
+            break;
+    }
 
-        try {
-            const sqlFaturamento = `
-                SELECT
-                    v.id, v.placa, v.modelo, v.valor_aquisicao,
-                    COALESCE(SUM(os.valor), 0) AS total_receita
-                FROM veiculos v
-                LEFT JOIN ordens_servico os ON v.id = os.veiculo_id AND os.status = 'Concluído' ${dataCondition}
-                GROUP BY v.id, v.placa, v.modelo, v.valor_aquisicao;
-            `;
-            const [faturamentoPorVeiculo] = await pool.execute(sqlFaturamento);
+    try {
+        const sqlFaturamento = `
+            SELECT
+                v.id, v.placa, v.modelo, v.valor_aquisicao,
+                COALESCE(SUM(os.valor), 0) AS total_receita
+            FROM veiculos v
+            LEFT JOIN ordens_servico os ON v.id = os.veiculo_id AND os.status = 'Concluído'
+            -- A variável dataCondition já inclui o WHERE, então a removemos daqui e a adicionamos na cláusula
+            ${dataCondition.replace('WHERE', 'AND')} 
+            GROUP BY v.id, v.placa, v.modelo, v.valor_aquisicao;
+        `;
+        const [faturamentoPorVeiculo] = await pool.execute(sqlFaturamento);
+        
+        const sqlDespesas = `
+            SELECT
+                veiculo_id, COALESCE(SUM(valor), 0) AS total_despesa
+            FROM despesas
+            WHERE veiculo_id IS NOT NULL AND status = 'Paga'
+            AND (MONTH(data_pagamento) = MONTH(CURDATE()) AND YEAR(data_pagamento) = YEAR(CURDATE()))
+            GROUP BY veiculo_id;
+        `;
+        const [despesasPorVeiculo] = await pool.execute(sqlDespesas);
+
+        const sqlCombustivel = `
+            SELECT
+                veiculo_id, COALESCE(SUM(valor), 0) AS total_combustivel
+            FROM gastos_abastecimento
+            WHERE (MONTH(data_abastecimento) = MONTH(CURDATE()) AND YEAR(data_abastecimento) = YEAR(CURDATE()))
+            GROUP BY veiculo_id;
+        `;
+        const [combustivelPorVeiculo] = await pool.execute(sqlCombustivel);
+
+        const resultados = faturamentoPorVeiculo.map(veiculo => {
+            const despesaItem = despesasPorVeiculo.find(d => d.veiculo_id === veiculo.id);
+            const combustivelItem = combustivelPorVeiculo.find(c => c.veiculo_id === veiculo.id);
             
-            const sqlDespesas = `
-                SELECT
-                    veiculo_id, COALESCE(SUM(valor), 0) AS total_despesa
-                FROM despesas
-                WHERE veiculo_id IS NOT NULL AND status = 'Paga'
-                AND (MONTH(data_pagamento) = MONTH(CURDATE()) AND YEAR(data_pagamento) = YEAR(CURDATE()))
-                GROUP BY veiculo_id;
-            `;
-            const [despesasPorVeiculo] = await pool.execute(sqlDespesas);
+            const totalDespesa = (despesaItem?.total_despesa || 0) + (combustivelItem?.total_combustivel || 0);
+            const lucroLiquido = parseFloat(veiculo.total_receita) - parseFloat(totalDespesa);
+            const roi = veiculo.valor_aquisicao > 0 ? (lucroLiquido / parseFloat(veiculo.valor_aquisicao)) * 100 : 0;
+            
+            return {
+                id: veiculo.id,
+                placa: veiculo.placa,
+                modelo: veiculo.modelo,
+                total_receita: parseFloat(veiculo.total_receita),
+                total_despesa: parseFloat(totalDespesa),
+                lucro_liquido: lucroLiquido,
+                roi: roi,
+            };
+        });
 
-            const sqlCombustivel = `
-                SELECT
-                    veiculo_id, COALESCE(SUM(valor), 0) AS total_combustivel
-                FROM gastos_abastecimento
-                WHERE (MONTH(data_abastecimento) = MONTH(CURDATE()) AND YEAR(data_abastecimento) = YEAR(CURDATE()))
-                GROUP BY veiculo_id;
-            `;
-            const [combustivelPorVeiculo] = await pool.execute(sqlCombustivel);
+        res.json(resultados);
 
-            const resultados = faturamentoPorVeiculo.map(veiculo => {
-                const despesaItem = despesasPorVeiculo.find(d => d.veiculo_id === veiculo.id);
-                const combustivelItem = combustivelPorVeiculo.find(c => c.veiculo_id === veiculo.id);
-                
-                const totalDespesa = (despesaItem?.total_despesa || 0) + (combustivelItem?.total_combustivel || 0);
-                const lucroLiquido = veiculo.total_receita - totalDespesa;
-                const roi = veiculo.valor_aquisicao > 0 ? (lucroLiquido / veiculo.valor_aquisicao) * 100 : 0;
-                
-                return {
-                    id: veiculo.id,
-                    placa: veiculo.placa,
-                    modelo: veiculo.modelo,
-                    total_receita: veiculo.total_receita,
-                    total_despesa: totalDespesa,
-                    lucro_liquido: lucroLiquido,
-                    roi: roi,
-                };
-            });
-
-            res.json(resultados);
-
-        } catch (error) {
-            console.error("Erro na análise de rentabilidade:", error);
-            res.status(500).json({ error: 'Falha ao gerar o relatório de rentabilidade da frota.' });
-        }
-    });
+    } catch (error) {
+        console.error("Erro na análise de rentabilidade:", error);
+        res.status(500).json({ error: 'Falha ao gerar o relatório de rentabilidade da frota.' });
+    }
+});
 
 
     // --- ROTAS DE GASTOS COMBUSTÍVEL E CUSTO POR KM ---
