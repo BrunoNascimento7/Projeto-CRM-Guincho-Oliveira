@@ -1200,7 +1200,12 @@ app.delete('/api/slideshow/manage/images/:id', authMiddleware, permissionMiddlew
         const [imageRows] = await pool.execute('SELECT image_url FROM slideshow_images WHERE id = ?', [id]);
         if (imageRows.length > 0) {
             const fileName = imageRows[0].image_url.split('/').pop();
-            const filePath = path.join(__dirname, 'uploads', 'slideshow', fileName);
+            
+            // --- CORREÇÃO AQUI ---
+            // Aponta para o caminho absoluto do disco persistente
+            const filePath = path.join('/var/data/uploads', 'slideshow', fileName);
+            // --- FIM DA CORREÇÃO ---
+
             const fs = require('fs/promises');
             try {
                 await fs.unlink(filePath);
