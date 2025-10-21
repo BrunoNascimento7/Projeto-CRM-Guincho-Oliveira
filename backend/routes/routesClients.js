@@ -221,6 +221,7 @@ router.get('/list-for-simulator', authMiddleware, async (req, res) => {
     const { id: clienteId } = req.params;
 
     try {
+        // --- QUERY SQL CORRIGIDA E ROBUSTA ---
         const sql = `
             SELECT
                 c.id, c.nome, c.telefone, c.email, c.endereco, c.cpf_cnpj, -- Listar colunas explicitamente
@@ -229,21 +230,25 @@ router.get('/list-for-simulator', authMiddleware, async (req, res) => {
                 (
                     SELECT COALESCE(SUM(f.valor), 0) -- Usar COALESCE aqui também
                     FROM financeiro f
-                    WHERE f.os_id IN (SELECT id FROM ordens_servico WHERE cliente_id = c.id)
+                    JOIN ordens_servico os_sub ON f.os_id = os_sub.id -- Join para garantir OS válida
+                    WHERE os_sub.cliente_id = c.id
                     AND f.tipo = 'Despesa'
                 ) AS custo_total_servicos,
-                MIN(os.data_criacao) AS primeiro_servico_data,
-                MAX(os.data_criacao) AS ultimo_servico_data, -- Se quiser a data da última OS CONCLUÍDA, use MAX(os.data_resolucao) aqui e no DATEDIFF
-                DATEDIFF(NOW(), MAX(os.data_criacao)) AS dias_desde_ultimo_servico
+                -- Usar data_resolucao para datas de serviço concluído
+                COALESCE(MIN(os.data_resolucao), NULL) AS primeiro_servico_data,
+                COALESCE(MAX(os.data_resolucao), NULL) AS ultimo_servico_data,
+                DATEDIFF(NOW(), MAX(os.data_resolucao)) AS dias_desde_ultimo_servico
             FROM
                 clientes c
             LEFT JOIN
-                ordens_servico os ON c.id = os.cliente_id
+                -- Considera apenas OS CONCLUÍDAS para os cálculos de MIN, MAX, SUM, COUNT
+                ordens_servico os ON c.id = os.cliente_id AND os.status = 'Concluído'
             WHERE
                 c.id = ?
             GROUP BY
                 c.id, c.nome, c.telefone, c.email, c.endereco, c.cpf_cnpj; -- Incluir todas as colunas não agregadas de 'c'
         `;
+        // --- FIM DA QUERY CORRIGIDA ---
 
         const [detailsResult] = await pool.execute(sql, [clienteId]);
 
@@ -257,17 +262,16 @@ router.get('/list-for-simulator', authMiddleware, async (req, res) => {
         const faturamento = parseFloat(details.faturamento_total || 0);
         const custo = parseFloat(details.custo_total_servicos || 0);
         const lucro = faturamento - custo;
-        
-        // Evita divisão por zero
         const percentual_lucro = faturamento > 0 ? (lucro / faturamento) * 100 : 0;
 
         // Adiciona os cálculos ao objeto de resposta
         details.lucro_total = lucro;
         details.percentual_lucro = percentual_lucro;
 
-        // Bônus: Buscar o histórico de serviços separadamente para a lista
+        // Bônus: Buscar o histórico de serviços separadamente (CORRIGIDO TAMBÉM)
         const [historicoServicos] = await pool.execute(
-            'SELECT id, descricao, status, valor, data_criacao FROM ordens_servico WHERE cliente_id = ? ORDER BY data_criacao DESC',
+            // Usar data_resolucao também aqui para consistência e clareza
+            'SELECT id, descricao, status, valor, data_resolucao as data_servico FROM ordens_servico WHERE cliente_id = ? ORDER BY data_resolucao DESC',
             [clienteId]
         );
 
@@ -278,14 +282,14 @@ router.get('/list-for-simulator', authMiddleware, async (req, res) => {
             'CLIENTE_VISUALIZADO',
             `Visualizou os detalhes do cliente ID ${clienteId} (${details.nome}).`
         );
-        
+
         res.json({
             details,
             history: historicoServicos
         });
 
     } catch (error) {
-        console.error("Erro ao buscar detalhes do cliente:", error);
+        console.error("Erro ao buscar detalhes do cliente:", error); // Verifique este log no Render se o erro persistir
         res.status(500).json({ error: 'Falha ao carregar detalhes do cliente.' });
     }
 });

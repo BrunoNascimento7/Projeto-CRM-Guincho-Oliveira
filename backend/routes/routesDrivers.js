@@ -105,8 +105,6 @@ module.exports = (dependencies) => {
         }
     });
 
-    // ROTA PARA OBTER OS DETALHES COMPLETOS E INSIGHTS DE UM MOTORISTA
-    // CORRIGIDA PARA RETORNAR O VEÍCULO MAIS USADO
     router.get('/:id/details', authMiddleware, async (req, res) => {
     const { id: motoristaId } = req.params;
     const HISTORY_LIMIT = 10;
@@ -119,62 +117,63 @@ module.exports = (dependencies) => {
         }
         const driverDetails = driverRows[0];
 
-        // 2. Executa todas as consultas de dados agregados em paralelo (6 queries)
+        // 2. Executa todas as consultas de dados agregados em paralelo
         const [
             [osStats],
             [financeStats],
-            historyOSResult,
+            historyOSResult, // Corrigido abaixo
             historyPagamentosResult,
             [mostUsedVehicle],
-            [rankingResult] // NOVA QUERY DE RANKING
+            [rankingResult]
         ] = await Promise.all([
-            // Query 1: Estatísticas das Ordens de Serviço (INALETARADA)
+            // Query 1: Estatísticas das Ordens de Serviço (Corrigida)
             pool.execute(`
                 SELECT
                     COUNT(id) as os_concluidas_total,
                     SUM(valor) as faturamento_gerado,
                     AVG(valor) as ticket_medio,
-                    MAX(data_resolucao) as ultima_atividade
+                    MAX(data_resolucao) as ultima_atividade -- Usar data_resolucao
                 FROM ordens_servico
                 WHERE motorista_id = ? AND status = 'Concluído'
             `, [motoristaId]),
 
-            // Query 2: Estatísticas Financeiras (INALETARADA)
+            // Query 2: Estatísticas Financeiras (sem alteração)
             pool.execute(`
                 SELECT
                     COUNT(id) as total_pagamentos,
                     SUM(valor) as valor_total_pago
                 FROM financeiro
-                WHERE motorista_id = ? AND tipo = 'Despesa' 
+                WHERE motorista_id = ? AND tipo = 'Despesa'
             `, [motoristaId]),
 
-            // Query 3: Histórico de OS concluídas (INALETARADA)
+            // Query 3: Histórico de OS concluídas (CORRIGIDA NOVAMENTE)
             pool.execute(`
-                SELECT 
-                    id, 
-                    descricao, 
+                SELECT
+                    id,
+                    descricao,
                     COALESCE(valor, 0) as valor,
-                    COALESCE(data_resolucao, data_criacao) as data_referencia
+                    -- CORREÇÃO FINAL AQUI: Remover data_criacao do COALESCE
+                    data_resolucao as data_referencia
                 FROM ordens_servico
-                WHERE motorista_id = ? AND status = 'Concluído'
+                WHERE motorista_id = ? AND status = 'Concluído' AND data_resolucao IS NOT NULL
                 ORDER BY data_referencia DESC
                 LIMIT ${HISTORY_LIMIT}
             `, [motoristaId]),
 
-            // Query 4: Histórico de pagamentos (INALETARADA)
+            // Query 4: Histórico de pagamentos (sem alteração)
             pool.execute(`
-                SELECT 
-                    id, 
-                    COALESCE(descricao, 'Pagamento') as descricao, 
-                    COALESCE(valor, 0) as valor, 
+                SELECT
+                    id,
+                    COALESCE(descricao, 'Pagamento') as descricao,
+                    COALESCE(valor, 0) as valor,
                     data
                 FROM financeiro
                 WHERE motorista_id = ? AND tipo = 'Despesa'
                 ORDER BY data DESC
                 LIMIT ${HISTORY_LIMIT}
             `, [motoristaId]),
-            
-            // Query 5: Veículo mais utilizado (INALETARADA)
+
+            // Query 5: Veículo mais utilizado (sem alteração)
             pool.execute(`
                 SELECT
                     v.modelo,
@@ -183,20 +182,19 @@ module.exports = (dependencies) => {
                 FROM ordens_servico os
                 JOIN veiculos v ON os.veiculo_id = v.id
                     WHERE os.motorista_id = ? AND os.status = 'Concluído' AND os.veiculo_id IS NOT NULL
-                GROUP BY v.id
+                GROUP BY v.id, v.modelo, v.placa
                 ORDER BY COUNT(os.id) DESC
                 LIMIT 1
             `, [motoristaId]),
 
-            // Query 6: CÁLCULO DE RANKING CORRIGIDO COM COALESCE DENTRO DA SUBQUERY
+            // Query 6: CÁLCULO DE RANKING (sem alteração)
             pool.execute(`
-                SELECT 
+                SELECT
                     t1.ranking_pos,
                     t1.total_motoristas
                 FROM (
-                    SELECT 
-                        m.id, 
-                        -- Corrigido: Usamos COALESCE no SUM para garantir que motoristas sem OSs entrem no ranking com 0
+                    SELECT
+                        m.id,
                         RANK() OVER (ORDER BY COALESCE(SUM(os.valor), 0) DESC) as ranking_pos,
                         (SELECT COUNT(DISTINCT id) FROM motoristas) as total_motoristas
                     FROM motoristas m
@@ -208,21 +206,19 @@ module.exports = (dependencies) => {
         ]);
 
         // 3. Combinação e Formatação da Resposta
-        // Retira o objeto de dentro do array do ranking, se existir
-        const rankingData = rankingResult[0] || {}; 
+        const rankingData = rankingResult[0] || {};
 
         const responseData = {
             details: driverDetails,
-            stats: { 
-                ...osStats[0], 
+            stats: {
+                ...osStats[0],
                 ...financeStats[0],
                 most_used_vehicle: mostUsedVehicle[0] || null,
-                // NOVOS DADOS DE RANKING
                 ranking_pos: rankingData.ranking_pos || null,
                 total_motoristas: rankingData.total_motoristas || null
             },
             history: {
-                ordensDeServico: historyOSResult[0], 
+                ordensDeServico: historyOSResult[0],
                 pagamentos: historyPagamentosResult[0]
             }
         };
@@ -238,7 +234,7 @@ module.exports = (dependencies) => {
         res.json(responseData);
 
     } catch (error) {
-        console.error("Erro ao buscar detalhes do motorista:", error);
+        console.error("Erro ao buscar detalhes do motorista:", error); // Ver logs no Render se persistir
         res.status(500).json({ error: 'Falha ao carregar detalhes do motorista.' });
     }
 });
