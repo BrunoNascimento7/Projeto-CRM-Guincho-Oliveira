@@ -56,7 +56,7 @@ if (missingVars.length > 0) {
 }
 
 app.use(express.json({ limit: '10mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('/var/data/uploads'));
 
 const SECRET_KEY = 'guincho_oliveira_secret';
 
@@ -102,9 +102,9 @@ const uploadLogo = multer({ storage: storageLogos });
 
 const storageSlideshow = multer.diskStorage({
     destination: function (req, file, cb) {
-        const dir = 'uploads/slideshow';
-        // A linha abaixo é a mágica: ela cria a pasta se ela não existir
-        fs.mkdirSync(dir, { recursive: true }); 
+        // O caminho completo para a pasta DENTRO do disco persistente
+        const dir = '/var/data/uploads/slideshow'; 
+        fs.mkdirSync(dir, { recursive: true }); // Garante que a subpasta 'slideshow' exista no disco
         cb(null, dir);
     },
     filename: function (req, file, cb) {

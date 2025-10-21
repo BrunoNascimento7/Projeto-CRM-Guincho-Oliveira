@@ -617,14 +617,15 @@ router.get('/public/customize/:slug', async (req, res) => {
         }
     });
 
-    router.get('/api/licensing/available-keys-for-client/:clienteId', authMiddleware, permissionMiddleware(['admin_geral', 'admin']), async (req, res) => {
+    router.get('/licensing/available-keys-for-client/:clienteId', authMiddleware, permissionMiddleware(['admin_geral', 'admin']), async (req, res) => {
     const { clienteId } = req.params;
     try {
+        // CORREÇÃO: Pega apenas a PRIMEIRA chave disponível (LIMIT 1) e apenas o ID
         const [keys] = await pool.execute(
-            'SELECT id, chave_licenca FROM licenca_chaves WHERE cliente_id = ? AND usuario_id_alocado IS NULL',
+            'SELECT id FROM licenca_chaves WHERE cliente_id = ? AND usuario_id_alocado IS NULL ORDER BY id ASC LIMIT 1',
             [clienteId]
         );
-        res.json(keys);
+        res.json(keys); // Retorna um array (vazio ou com uma chave { id: ... })
     } catch (error) {
         console.error("Erro ao buscar chaves disponíveis para o cliente:", error.message);
         res.status(500).json({ error: 'Falha ao buscar chaves disponíveis.' });

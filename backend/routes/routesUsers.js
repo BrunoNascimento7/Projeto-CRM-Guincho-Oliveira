@@ -333,56 +333,64 @@ module.exports = (dependencies) => {
     });
 
     router.post('/register', authMiddleware, permissionMiddleware(['admin_geral', 'admin']), async (req, res) => {
-        const { nome, email, senha, perfil, matricula, cpf, filial, cargo, centroDeCusto } = req.body;
-        const { id: creatorId, nome: creatorNome, perfil: creatorPerfil, cliente_id: creatorClienteId } = req.user;
+    // 1. Inclui 'telefone' na desestruturação
+    const { nome, email, senha, telefone, perfil, matricula, cpf, filial, cargo, centroDeCusto } = req.body;
+    const { id: creatorId, nome: creatorNome, perfil: creatorPerfil, cliente_id: creatorClienteId } = req.user;
+    
+    let clienteIdParaNovoUsuario = null;
+    if (perfil === 'admin_geral') {
+        clienteIdParaNovoUsuario = null; // Admin Geral não tem cliente
+    } else if (creatorPerfil === 'admin_geral') {
+        clienteIdParaNovoUsuario = req.body.cliente_id; // Admin Geral DEVE selecionar um cliente no form
+    } else { // Se for um admin 'normal'
+        clienteIdParaNovoUsuario = creatorClienteId; // Usa o cliente do próprio admin
+    }
+
+    // Validação: Garante que um cliente foi selecionado se necessário
+    if (perfil !== 'admin_geral' && !clienteIdParaNovoUsuario) {
+        return res.status(400).json({ error: 'ID do cliente não especificado para este perfil de usuário.' });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Verificação de limite de licenças (se não for admin_geral)
+        if (perfil !== 'admin_geral') {
+            const [[{ used }]] = await connection.execute('SELECT COUNT(id) as used FROM usuarios WHERE cliente_id = ? AND licenca_chave_id IS NOT NULL', [clienteIdParaNovoUsuario]);
+            const [[{ max_licencas }]] = await connection.execute('SELECT max_licencas FROM clientes_sistema WHERE id = ?', [clienteIdParaNovoUsuario]);
+            if (used >= max_licencas) {
+                await connection.rollback();
+                connection.release();
+                return res.status(403).json({ error: 'Limite de licenças atingido. Não é possível adicionar novos usuários.' });
+            }
+        }
         
-        let clienteIdParaNovoUsuario = null;
-        if (perfil === 'admin_geral') {
-            clienteIdParaNovoUsuario = null;
-        } else if (creatorPerfil === 'admin_geral') {
-            clienteIdParaNovoUsuario = req.body.cliente_id;
-        } else {
-            clienteIdParaNovoUsuario = creatorClienteId;
+        const hash = await bcrypt.hash(senha, 10);
+
+        // 2. Inclui 'telefone' na query SQL
+        const sql = `INSERT INTO usuarios (nome, email, senha, telefone, perfil, matricula, cpf, filial, cargo, centroDeCusto, cliente_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
+        // 3. Inclui a variável 'telefone' na lista de parâmetros
+        const [result] = await connection.execute(sql, [nome, email, hash, telefone, perfil, matricula, cpf, filial, cargo, centroDeCusto, clienteIdParaNovoUsuario]);
+        
+        await connection.commit();
+        
+        await registrarLog(creatorId, creatorNome, 'USUARIO_CRIADO', `Novo usuário: ${nome} (ID: ${result.insertId}, Perfil: ${perfil})`);
+        // Retorna o ID para o frontend poder tentar a alocação automática
+        res.status(201).json({ id: result.insertId });
+
+    } catch (err) {
+        await connection.rollback();
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ error: 'Este email já está cadastrado.' });
         }
-
-        if (perfil !== 'admin_geral' && !clienteIdParaNovoUsuario) {
-            return res.status(400).json({ error: 'ID do cliente não especificado para este perfil de usuário.' });
-        }
-
-        const connection = await pool.getConnection();
-        try {
-            await connection.beginTransaction();
-
-            if (perfil !== 'admin_geral') {
-                const [[{ used }]] = await connection.execute('SELECT COUNT(id) as used FROM usuarios WHERE cliente_id = ? AND licenca_chave_id IS NOT NULL', [clienteIdParaNovoUsuario]);
-                const [[{ max_licencas }]] = await connection.execute('SELECT max_licencas FROM clientes_sistema WHERE id = ?', [clienteIdParaNovoUsuario]);
-                if (used >= max_licencas) {
-                    await connection.rollback();
-                    connection.release();
-                    return res.status(403).json({ error: 'Limite de licenças atingido. Não é possível adicionar novos usuários.' });
-                }
-            }
-            
-            const hash = await bcrypt.hash(senha, 10);
-            const sql = `INSERT INTO usuarios (nome, email, senha, perfil, matricula, cpf, filial, cargo, centroDeCusto, cliente_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const [result] = await connection.execute(sql, [nome, email, hash, perfil, matricula, cpf, filial, cargo, centroDeCusto, clienteIdParaNovoUsuario]);
-            
-            await connection.commit();
-            
-            await registrarLog(creatorId, creatorNome, 'USUARIO_CRIADO', `Novo usuário: ${nome} (ID: ${result.insertId}, Perfil: ${perfil})`);
-            res.status(201).json({ id: result.insertId });
-
-        } catch (err) {
-            await connection.rollback();
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(400).json({ error: 'Este email já está cadastrado.' });
-            }
-            console.error("Erro ao registrar usuário:", err.message);
-            res.status(500).json({ error: 'Falha ao registrar novo usuário.' });
-        } finally {
-            connection.release();
-        }
-    });
+        console.error("Erro ao registrar usuário:", err.message);
+        res.status(500).json({ error: 'Falha ao registrar novo usuário.' });
+    } finally {
+        connection.release();
+    }
+});
 
     // CORREÇÃO: Removido o prefixo '/api/usuarios'. Mantida a versão mais completa desta rota.
     router.post('/import', authMiddleware, adminGeralMiddleware, async (req, res) => {

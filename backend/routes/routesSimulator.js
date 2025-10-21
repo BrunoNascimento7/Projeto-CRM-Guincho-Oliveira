@@ -98,7 +98,7 @@ module.exports = function(pool, authMiddleware, permissionMiddleware, registrarL
                 clienteIdParaOS = null;
             }
 
-            const sqlOS = `INSERT INTO ordens_servico (id, cliente_id, local_atendimento, descricao, data_criacao, valor, status, criado_por_usuario_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            const sqlOS = `INSERT INTO ordens_servico (id, cliente_id, local_atendimento, descricao, data_hora, valor, status, criado_por_usuario_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
             
             await connection.execute(sqlOS, [
                 novoOsId,
