@@ -80,7 +80,7 @@ export default function VeiculoDetalhesModal({ veiculo, onClose }) {
                                 <ul className="history-list">
                                     {details.historico_os.length > 0 ? details.historico_os.map(os => (
                                         <li key={os.id}>
-                                            <span>OS #{os.id} - {formatDate(os.data_conclusao)}</span>
+                                            <span>OS #{os.id} - {formatDate(os.data_resolucao)}</span>
                                             <strong>{formatCurrency(os.valor)}</strong>
                                         </li>
                                     )) : <p>Nenhum serviço concluído.</p>}
