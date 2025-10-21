@@ -688,24 +688,26 @@ router.post('/reset-password/set-new-password', async (req, res) => {
 
 
     // CORREÇÃO: Removido o prefixo '/usuarios'
-    router.get('/:id', authMiddleware, permissionMiddleware(['admin_geral']), async (req, res) => {
-        try {
-            const sql = `
-    SELECT 
-        u.id, u.nome, u.email, u.telefone, u.perfil, u.matricula, u.cpf, u.filial, 
-        u.cargo, u.centroDeCusto, u.foto_perfil, u.status, u.regras_acesso,
-        u.cliente_id 
-    FROM usuarios u 
-    WHERE u.id = ?
+   router.get('/:id', authMiddleware, permissionMiddleware(['admin_geral']), async (req, res) => {
+        try {
+            const sql = `
+    SELECT 
+        u.id, u.nome, u.email, 
+        u.telefone,  -- <--- ADICIONE ESTA LINHA
+        u.perfil, u.matricula, u.cpf, u.filial, 
+        u.cargo, u.centroDeCusto, u.foto_perfil, u.status, u.regras_acesso,
+        u.cliente_id 
+    FROM usuarios u 
+    WHERE u.id = ?
 `;
-            const [rows] = await pool.execute(sql, [req.params.id]);
+            const [rows] = await pool.execute(sql, [req.params.id]);
 
-            if (rows.length === 0) return res.status(404).json({ error: 'Usuário não encontrado.' });
-            res.json(rows[0]);
-        } catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    });
+            if (rows.length === 0) return res.status(404).json({ error: 'Usuário não encontrado.' });
+            res.json(rows[0]);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
 
     router.put('/bulk-actions', authMiddleware, permissionMiddleware(['admin_geral']), async (req, res) => {
     const { userIds, action } = req.body;
@@ -982,7 +984,7 @@ router.post('/reset-password/set-new-password', async (req, res) => {
             console.log(`[LOG] Rota /usuarios/me acessada para o usuário ID: ${req.user.id}`);
 
             const [rows] = await pool.execute(
-              `SELECT u.id, u.nome, u.email, u.perfil, u.cliente_id, u.matricula, u.cpf, u.filial, u.cargo, u.centroDeCusto, u.foto_perfil, u.tema, cs.nome_empresa, cs.logo_url 
+              `SELECT u.id, u.nome, u.email, u.perfil, u.telefone, u.cliente_id, u.matricula, u.cpf, u.filial, u.cargo, u.centroDeCusto, u.foto_perfil, u.tema, cs.nome_empresa, cs.logo_url 
                FROM usuarios u
                LEFT JOIN clientes_sistema cs ON u.cliente_id = cs.id
                WHERE u.id = ?`, 
