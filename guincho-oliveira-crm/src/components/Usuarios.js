@@ -235,25 +235,29 @@ export default function Usuarios() {
         fetchData(searchQuery);
     }, [searchQuery, fetchData]);
 
-    useEffect(() => {
-        const fetchKeysForClient = async () => {
-            const targetClientId = perfilLogado === 'admin_geral' 
-                ? selectedClientForKeys 
-                : allClients.find(c => c.nome_empresa === licenseInfo.clientName)?.id;
-            if (targetClientId) {
-                try {
-                    const { data } = await api.get(`/api/usuarios/licencas/cliente/${targetClientId}`);
-                    setKeysOverview(data);
-                } catch (error) {
-                    toast.error("Falha ao buscar licenças do cliente.");
-                    setKeysOverview([]);
-                }
-            } else if (perfilLogado === 'admin_geral') {
+    // Dentro do useEffect que busca as licenças do cliente:
+useEffect(() => {
+    const fetchKeysForClient = async () => {
+        const targetClientId = perfilLogado === 'admin_geral'
+            ? selectedClientForKeys
+            : allClients.find(c => c.nome_empresa === licenseInfo.clientName)?.id;
+        if (targetClientId) {
+            try {
+                // ==================== CORREÇÃO APLICADA AQUI ====================
+                // URL ANTIGA: `/api/usuarios/licencas/cliente/${targetClientId}`
+                const { data } = await api.get(`/api/licencas/cliente/${targetClientId}`); // <-- URL CORRETA (sem /usuarios)
+                // ================================================================
+                setKeysOverview(data);
+            } catch (error) {
+                toast.error("Falha ao buscar licenças do cliente.");
                 setKeysOverview([]);
             }
-        };
-        fetchKeysForClient();
-    }, [selectedClientForKeys, perfilLogado, licenseInfo.clientName, allClients]);
+        } else if (perfilLogado === 'admin_geral') {
+            setKeysOverview([]);
+        }
+    };
+    fetchKeysForClient();
+}, [selectedClientForKeys, perfilLogado, licenseInfo.clientName, allClients]); // Dependências corretas
 
     const handleBulkAction = async (action) => {
         if (selectedUsers.length === 0) {
