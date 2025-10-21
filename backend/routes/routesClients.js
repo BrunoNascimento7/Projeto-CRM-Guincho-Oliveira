@@ -221,22 +221,19 @@ router.get('/list-for-simulator', authMiddleware, async (req, res) => {
     const { id: clienteId } = req.params;
 
     try {
-        // Precisamos fazer uma consulta SQL mais complexa para calcular tudo
-        // Assumimos que a tabela `financeiro` tem uma coluna `os_id`
-        // e que custos são lançados com `tipo = 'Despesa'`
         const sql = `
             SELECT
-                c.*,
+                c.id, c.nome, c.telefone, c.email, c.endereco, c.cpf_cnpj, -- Listar colunas explicitamente
                 COUNT(os.id) AS total_servicos,
-                SUM(os.valor) AS faturamento_total,
+                COALESCE(SUM(os.valor), 0) AS faturamento_total, -- Usar COALESCE para evitar null
                 (
-                    SELECT SUM(f.valor) 
-                    FROM financeiro f 
-                    WHERE f.os_id IN (SELECT id FROM ordens_servico WHERE cliente_id = c.id) 
+                    SELECT COALESCE(SUM(f.valor), 0) -- Usar COALESCE aqui também
+                    FROM financeiro f
+                    WHERE f.os_id IN (SELECT id FROM ordens_servico WHERE cliente_id = c.id)
                     AND f.tipo = 'Despesa'
                 ) AS custo_total_servicos,
                 MIN(os.data_criacao) AS primeiro_servico_data,
-                MAX(os.data_criacao) AS ultimo_servico_data,
+                MAX(os.data_criacao) AS ultimo_servico_data, -- Se quiser a data da última OS CONCLUÍDA, use MAX(os.data_resolucao) aqui e no DATEDIFF
                 DATEDIFF(NOW(), MAX(os.data_criacao)) AS dias_desde_ultimo_servico
             FROM
                 clientes c
@@ -245,7 +242,7 @@ router.get('/list-for-simulator', authMiddleware, async (req, res) => {
             WHERE
                 c.id = ?
             GROUP BY
-                c.id;
+                c.id, c.nome, c.telefone, c.email, c.endereco, c.cpf_cnpj; -- Incluir todas as colunas não agregadas de 'c'
         `;
 
         const [detailsResult] = await pool.execute(sql, [clienteId]);

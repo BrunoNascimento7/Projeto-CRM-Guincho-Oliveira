@@ -134,7 +134,7 @@ module.exports = (dependencies) => {
                     COUNT(id) as os_concluidas_total,
                     SUM(valor) as faturamento_gerado,
                     AVG(valor) as ticket_medio,
-                    MAX(data_conclusao) as ultima_atividade
+                    MAX(data_resolucao) as ultima_atividade
                 FROM ordens_servico
                 WHERE motorista_id = ? AND status = 'Concluído'
             `, [motoristaId]),
@@ -154,7 +154,7 @@ module.exports = (dependencies) => {
                     id, 
                     descricao, 
                     COALESCE(valor, 0) as valor,
-                    COALESCE(data_conclusao, data_criacao) as data_referencia
+                    COALESCE(data_resolucao, data_criacao) as data_referencia
                 FROM ordens_servico
                 WHERE motorista_id = ? AND status = 'Concluído'
                 ORDER BY data_referencia DESC

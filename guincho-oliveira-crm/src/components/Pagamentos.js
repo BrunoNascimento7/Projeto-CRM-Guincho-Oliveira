@@ -96,7 +96,7 @@ export default function Pagamentos() {
             const token = localStorage.getItem('token');
             // Ao registrar um novo pagamento, garantimos que o tipo é 'Despesa'
             const payload = { ...formData, tipo: 'Despesa', categoria_id: 2 }; // Assumindo categoria 2 para pagamentos diversos
-            await api.post('/financeiro', payload, { headers: { Authorization: `Bearer ${token}` } });
+            await api.post('/api/financeiro', payload, { headers: { Authorization: `Bearer ${token}` } });
             alert('Pagamento registrado com sucesso!');
             setFormData({ valor: '', motorista_id: '', data: '', descricao: '' });
             fetchData();

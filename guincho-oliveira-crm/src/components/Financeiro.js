@@ -114,7 +114,7 @@ export default function Financeiro() {
             return;
         }
         try {
-            await api.post('/financeiro', formData, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+            await api.post('/api/financeiro', formData, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
             alert('Transação registrada com sucesso!');
             setFormData({ tipo: 'Receita', categoria_id: '', descricao: '', valor: '', data: '', motorista_id: '' });
             fetchData(filtros);

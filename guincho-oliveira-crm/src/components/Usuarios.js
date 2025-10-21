@@ -243,10 +243,7 @@ useEffect(() => {
             : allClients.find(c => c.nome_empresa === licenseInfo.clientName)?.id;
         if (targetClientId) {
             try {
-                // ==================== CORREÇÃO APLICADA AQUI ====================
-                // URL ANTIGA: `/api/usuarios/licencas/cliente/${targetClientId}`
-                const { data } = await api.get(`/api/licencas/cliente/${targetClientId}`); // <-- URL CORRETA (sem /usuarios)
-                // ================================================================
+                const { data } = await api.get(`/api/usuarios/licencas/cliente/${targetClientId}`); 
                 setKeysOverview(data);
             } catch (error) {
                 toast.error("Falha ao buscar licenças do cliente.");
