@@ -40,11 +40,15 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
 
     router.post('/financeiro', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro']), async (req, res) => {
         const { tipo, descricao, valor, data, motorista_id, categoria_id } = req.body;
+        const motoristaIdFinal = motorista_id || null;
         const sql = `INSERT INTO financeiro (tipo, descricao, valor, data, motorista_id, categoria_id) VALUES (?, ?, ?, ?, ?, ?)`;
         try {
-            const [result] = await pool.execute(sql, [tipo, descricao, valor, data, motorista_id, categoria_id]);
+
+            const [result] = await pool.execute(sql, [tipo, descricao, valor, data, motoristaIdFinal, categoria_id]);
             res.status(201).json({ id: result.insertId });
         } catch (err) {
+
+            console.error("Erro ao inserir pagamento no financeiro:", err.message);
             res.status(500).json({ error: err.message });
         }
     });
