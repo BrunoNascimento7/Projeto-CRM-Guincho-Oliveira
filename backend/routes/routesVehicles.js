@@ -179,7 +179,7 @@ module.exports = (dependencies) => {
 
         // 4. Histórico de Ordens de Serviço
         const [historico_os] = await connection.execute(
-            "SELECT id, data_conclusao, descricao, valor, status FROM ordens_servico WHERE veiculo_id = ? ORDER BY data_conclusao DESC LIMIT 50",
+            "SELECT id, data_resolucao, descricao, valor, status FROM ordens_servico WHERE veiculo_id = ? ORDER BY data_resolucao DESC LIMIT 50",
             [id]
         );
 

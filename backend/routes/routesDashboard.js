@@ -21,7 +21,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
     if (dataInicio && dataFim) {
         financeiroConditions.push('DATE(data) BETWEEN ? AND ?');
         despesasConditions.push('DATE(data_pagamento) BETWEEN ? AND ?');
-        // CORREÇÃO AQUI: data_conclusao -> data_resolucao
+        // CORREÇÃO AQUI: data_resolucao -> data_resolucao
         osConditions.push("DATE(data_resolucao) BETWEEN ? AND ?");
         params.push(dataInicio, dataFim, dataInicio, dataFim, dataInicio, dataFim);
         numParams = 6;
@@ -39,7 +39,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         }
         financeiroConditions.push(filter);
         despesasConditions.push(filter.replace(/\bdata\b/g, 'data_pagamento'));
-        // CORREÇÃO AQUI: data_conclusao -> data_resolucao
+        // CORREÇÃO AQUI: data_resolucao -> data_resolucao
         osConditions.push(filter.replace(/\bdata\b/g, 'data_resolucao'));
     }
 
@@ -202,7 +202,7 @@ router.get('/dashboard/export/xls', authMiddleware, permissionMiddleware(['admin
             SELECT 
                 (SELECT SUM(valor) FROM financeiro WHERE MONTH(data) = MONTH(CURDATE()) AND YEAR(data) = YEAR(CURDATE()) AND tipo = 'Receita') AS faturamento,
                 (SELECT SUM(valor) FROM financeiro WHERE MONTH(data) = MONTH(CURDATE()) AND YEAR(data) = YEAR(CURDATE()) AND tipo = 'Despesa') AS despesas,
-                (SELECT COUNT(id) FROM ordens_servico WHERE MONTH(data_conclusao) = MONTH(CURDATE()) AND YEAR(data_conclusao) = YEAR(CURDATE()) AND status = 'Concluído') AS servicosConcluidos
+                (SELECT COUNT(id) FROM ordens_servico WHERE MONTH(data_resolucao) = MONTH(CURDATE()) AND YEAR(data_resolucao) = YEAR(CURDATE()) AND status = 'Concluído') AS servicosConcluidos
         `);
         const faturamento = resumoRows.faturamento || 0;
         const despesas = resumoRows.despesas || 0;

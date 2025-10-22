@@ -346,7 +346,7 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
 
             // 2. BUSCA AS RECEITAS FUTURAS A PAGAR
             const [receitasPendentes] = await pool.execute(
-                `SELECT valor, data_conclusao AS data FROM ordens_servico WHERE status = 'Concluído' AND faturada_em IS NULL AND data_conclusao <= ?`,
+                `SELECT valor, data_resolucao AS data FROM ordens_servico WHERE status = 'Concluído' AND faturada_em IS NULL AND data_resolucao <= ?`,
                 [futureDate]
             );
 
@@ -507,16 +507,16 @@ module.exports = (pool, authMiddleware, permissionMiddleware, registrarLog, uplo
 
     switch (periodo) {
         case 'semanal':
-            // CORREÇÃO: data_conclusao -> data_resolucao
+            // CORREÇÃO: data_resolucao -> data_resolucao
             dataCondition = `WHERE data_resolucao >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)`;
             break;
         case 'anual':
-            // CORREÇÃO: data_conclusao -> data_resolucao
+            // CORREÇÃO: data_resolucao -> data_resolucao
             dataCondition = `WHERE YEAR(data_resolucao) = YEAR(CURDATE())`;
             break;
         case 'mensal':
         default:
-            // CORREÇÃO: data_conclusao -> data_resolucao
+            // CORREÇÃO: data_resolucao -> data_resolucao
             dataCondition = `WHERE MONTH(data_resolucao) = MONTH(CURDATE()) AND YEAR(data_resolucao) = YEAR(CURDATE())`;
             break;
     }

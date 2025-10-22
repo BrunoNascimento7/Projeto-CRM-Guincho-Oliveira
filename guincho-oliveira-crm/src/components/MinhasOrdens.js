@@ -169,7 +169,7 @@ export default function MinhasOrdens() {
                      <div className="os-list-container">
                         {loading ? <p className="os-list-empty">Carregando...</p> : listas.concluidas.length > 0 ? (
                             <ul className="os-list">
-                                {listas.concluidas.map(os => <OrdemListItem key={`f-${os.id}`} ordem={os} dateField="data_conclusao" />)}
+                                {listas.concluidas.map(os => <OrdemListItem key={`f-${os.id}`} ordem={os} dateField="data_resolucao" />)}
                             </ul>
                         ) : <p className="os-list-empty">Nenhuma ordem concluída.</p>}
                     </div>

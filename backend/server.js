@@ -706,7 +706,7 @@ app.use('/api', publicRoutes(pool));
 
 // --- ROTAS DE ORDENS DE SERVIÇO ---
 app.get('/api/ordens', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'operacional', 'financeiro']), async (req, res) => {
-    const { status, query, motorista_id, data_criacao, data_conclusao } = req.query;
+    const { status, query, motorista_id, data_criacao, data_resolucao } = req.query;
     let sql = 'SELECT * FROM ordens_servico';
     let params = [];
     let conditions = [];
@@ -726,9 +726,9 @@ app.get('/api/ordens', authMiddleware, permissionMiddleware(['admin_geral', 'adm
         conditions.push('DATE(data_criacao) = ?');
         params.push(data_criacao);
     }
-    if (data_conclusao) {
-        conditions.push('DATE(data_conclusao) = ?');
-        params.push(data_conclusao);
+    if (data_resolucao) {
+        conditions.push('DATE(data_resolucao) = ?');
+        params.push(data_resolucao);
     }
     if (conditions.length > 0) {
         sql += ' WHERE ' + conditions.join(' AND ');
@@ -822,7 +822,7 @@ app.put('/api/ordens/:id/status', authMiddleware, permissionMiddleware(['admin_g
             
             if (novoStatus === 'Concluído') {
                 const dataConclusao = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                sqlUpdateOS += ', data_conclusao = ?, concluido_por_usuario_id = ?';
+                sqlUpdateOS += ', data_resolucao = ?, concluido_por_usuario_id = ?';
                 paramsUpdateOS.push(dataConclusao, usuarioLogadoId);
             }
             
@@ -1536,7 +1536,7 @@ app.get('/dashboard/motorista/:id/produtividade', authMiddleware, async (req, re
                  CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS b
                  CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS c
                 ) AS d
-            LEFT JOIN ordens_servico os ON DATE(os.data_conclusao) = d.d AND os.motorista_id = ? AND os.status = 'Concluído'
+            LEFT JOIN ordens_servico os ON DATE(os.data_resolucao) = d.d AND os.motorista_id = ? AND os.status = 'Concluído'
             WHERE d.d BETWEEN CURDATE() - INTERVAL 6 DAY AND CURDATE()
             GROUP BY d.d
             ORDER BY d.d ASC;
