@@ -133,17 +133,63 @@ router.get('/dashboard/top-clientes', authMiddleware, async (req, res) => {
 });
 
 router.get('/dashboard/faturamento-anual', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro', 'operacional']), async (req, res) => {
-    try {
-        const sql = `SELECT MONTH(data) AS mes, SUM(CASE WHEN tipo = 'Receita' THEN valor ELSE 0 END) AS faturamento, SUM(CASE WHEN tipo = 'Despesa' THEN valor ELSE 0 END) AS despesas FROM financeiro WHERE YEAR(data) = YEAR(CURDATE()) GROUP BY MONTH(data) ORDER BY mes ASC;`;
-        const [rows] = await pool.execute(sql);
+        try {
+        // --- INÍCIO DA CORREÇÃO ---
+        // Precisamos recriar a lógica de filtro que está na rota 'resumo'
+        const { periodo, dataInicio, dataFim } = req.query;
+        let conditions = [];
+        let params = [];
+
+        if (dataInicio && dataFim) {
+            conditions.push('DATE(data) BETWEEN ? AND ?');
+            params.push(dataInicio, dataFim);
+        } else {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            
+            switch (periodo) {
+                case 'hoje': 
+                    conditions.push('DATE(data) = CURDATE()'); 
+                    break;
+                case 'semanal': 
+                    conditions.push('YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)'); 
+                    break;
+                case 'anual': 
+                    conditions.push('YEAR(data) = ?'); 
+                    params.push(year);
+                    break;
+                case 'mensal': 
+                default: 
+                    conditions.push('YEAR(data) = ? AND MONTH(data) = ?'); 
+                    params.push(year, month);
+                    break;
+            }
+        }
+        
+        // Se a rota for chamada sem filtro (ex: pelo dashboard antigo),
+        // default para o ano atual.
+        if (conditions.length === 0) {
+            conditions.push('YEAR(data) = YEAR(CURDATE())');
+        }
+
+        const sql = `
+            SELECT 
+                MONTH(data) AS mes, 
+                SUM(CASE WHEN tipo = 'Receita' THEN valor ELSE 0 END) AS faturamento, 
+                SUM(CASE WHEN tipo = 'Despesa' THEN valor ELSE 0 END) AS despesas 
+            FROM financeiro 
+            WHERE ${conditions.join(' AND ')} 
+            GROUP BY MONTH(data) 
+            ORDER BY mes ASC;
+        `;
+
+        // Use os parâmetros na query!
+        const [rows] = await pool.execute(sql, params);
+        // --- FIM DA CORREÇÃO ---
+        
         const labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        const faturamentoData = Array(12).fill(0);
-        const despesasData = Array(12).fill(0);
-        rows.forEach(row => {
-            const monthIndex = row.mes - 1;
-            faturamentoData[monthIndex] = parseFloat(row.faturamento);
-            despesasData[monthIndex] = parseFloat(row.despesas);
-        });
+
         res.json({ labels, faturamentoData, despesasData });
     } catch (err) {
         res.status(500).json({ error: 'Falha ao buscar dados do gráfico.' });
