@@ -34,7 +34,7 @@ export default function Pagamentos() {
 
             // 1. Buscamos TODAS as transações e os motoristas
             const [transacoesRes, motoristasRes] = await Promise.all([
-                api.get('/financeiro', config),
+                api.get('/api/financeiro', config),
                 api.get('/api/drivers', config)
             ]);
 
@@ -118,7 +118,7 @@ export default function Pagamentos() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await api.put(`/financeiro/${editFormData.id}`, editFormData, { headers: { 'Authorization': `Bearer ${token}` } });
+            await api.put(`/api/financeiro/${editFormData.id}`, editFormData, { headers: { 'Authorization': `Bearer ${token}` } });
             alert('Pagamento atualizado com sucesso!');
             fetchData();
             handleCloseEditModal();
@@ -131,7 +131,7 @@ export default function Pagamentos() {
         if (window.confirm('Tem certeza que deseja excluir este pagamento?')) {
             try {
                 const token = localStorage.getItem('token');
-                await api.delete(`/financeiro/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                await api.delete(`/api/financeiro/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 fetchData();
             } catch (error) {
                 console.error('Erro ao excluir pagamento:', error);
