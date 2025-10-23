@@ -28,42 +28,47 @@ export default function Pagamentos() {
     const [filters, setFilters] = useState({ data: '', descricao: '' });
 
     async function fetchData() {
-        try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
 
-            // 1. Buscamos TODAS as transações e os motoristas
-            const [transacoesRes, motoristasRes] = await Promise.all([
-                api.get('/api/financeiro', config),
-                api.get('/api/drivers', config)
-            ]);
+    try {
+        const token = localStorage.getItem('token');
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        
+        // Cria um timestamp único para "burlar" o cache
+        const cacheBuster = `_=${new Date().getTime()}`;
 
-            // 2. Filtramos APENAS as despesas no frontend
-            const todasTransacoes = transacoesRes.data || [];
-            const despesasData = todasTransacoes.filter(t => t.tipo === 'Despesa');
+        // 1. Buscamos TODAS as transações e os motoristas
+        const [transacoesRes, motoristasRes] = await Promise.all([
+            // Adiciona o cacheBuster nas requisições GET
+            api.get(`/api/financeiro?${cacheBuster}`, config),
+            api.get(`/api/drivers?${cacheBuster}`, config)
+        ]);
 
-            setPagamentos(despesasData); // A lista de pagamentos agora contém apenas despesas
-            setMotoristas(motoristasRes.data.data || []);
+        // 2. Filtramos APENAS as despesas no frontend
+        const todasTransacoes = transacoesRes.data || [];
+        const despesasData = todasTransacoes.filter(t => t.tipo === 'Despesa');
 
-            // 3. Calculamos o total de despesas a partir dos dados já filtrados
-            const totalDespesa = despesasData.reduce((acc, despesa) => {
-                return acc + (parseFloat(despesa.valor) || 0);
-            }, 0);
+        setPagamentos(despesasData);
+        // Aqui está a correção da lista de motoristas (acessando .data)
+        setMotoristas(motoristasRes.data || []); 
 
-            // 4. Atualizamos o resumo e o gráfico com os valores corretos para esta tela
-            const receita = 0; // Receita é zero nesta tela
-            const saldo = receita - totalDespesa;
+        // 3. Calculamos o total de despesas a partir dos dados já filtrados
+        const totalDespesa = despesasData.reduce((acc, despesa) => {
+            return acc + (parseFloat(despesa.valor) || 0);
+        }, 0);
 
-            setResumo({ receita, despesa: totalDespesa, saldo });
-            setChartData([
-                // Mostra apenas a despesa no gráfico para maior clareza
-                { name: 'Despesa Total', valor: totalDespesa }
-            ]);
+        // 4. Atualizamos o resumo e o gráfico com os valores corretos para esta tela
+        const receita = 0; 
+        const saldo = receita - totalDespesa;
 
-        } catch (error) {
-            console.error('Erro ao buscar dados:', error);
-        }
+        setResumo({ receita, despesa: totalDespesa, saldo });
+        setChartData([
+            { name: 'Despesa Total', valor: totalDespesa }
+        ]);
+
+    } catch (error) {
+        console.error('Erro ao buscar dados:', error);
     }
+}
 
     useEffect(() => {
         fetchData();
