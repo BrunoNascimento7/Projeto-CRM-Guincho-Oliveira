@@ -18,7 +18,7 @@ const formatCurrency = (value) => {
 export default function Pagamentos() {
     const navigate = useNavigate();
     const [pagamentos, setPagamentos] = useState([]);
-    const [motoristas, setMotoristas] = useState([]);
+    const [motoristas, setMotoristas] = useState([]); // ✅ Correção 1 (já estava no seu código)
     const [resumo, setResumo] = useState({ receita: 0, despesa: 0, saldo: 0 });
     const [chartData, setChartData] = useState([]);
     const [formData, setFormData] = useState({ valor: '', motorista_id: '', data: '', descricao: '' });
@@ -153,7 +153,8 @@ export default function Pagamentos() {
                     <h3>Adicionar Novo Pagamento</h3>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group"><label>Valor (R$):</label><input type="number" step="0.01" name="valor" value={formData.valor} onChange={handleInputChange} required /></div>
-                        <div className="form-group"><label>Motorista (se aplicável):</label><select name="motorista_id" value={formData.motorista_id} onChange={handleInputChange}><option value="">Nenhum</option>{motoristas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}</select></div>
+                        {/* ⬇️ CORREÇÃO 2 APLICADA AQUI */}
+                        <div className="form-group"><label>Motorista (se aplicável):</label><select name="motorista_id" value={formData.motorista_id} onChange={handleInputChange}><option value="">Nenhum</option>{motoristas?.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}</select></div>
                         <div className="form-group"><label>Data:</label><input type="date" name="data" value={formData.data} onChange={handleInputChange} required /></div>
                         <div className="form-group"><label>Descrição:</label><textarea name="descricao" value={formData.descricao} onChange={handleInputChange} required></textarea></div>
                         <button type="submit" className="submit-button">Registrar Pagamento</button>
@@ -182,7 +183,8 @@ export default function Pagamentos() {
                                         <div className="list-item-info">
                                             <span className="pagamento-valor">{formatCurrency(p.valor)}</span>
                                             <span className="pagamento-descricao">{p.descricao}</span>
-                                            <span className="pagamento-meta">{new Date(p.data).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} | {motoristas.find(m => m.id === p.motorista_id)?.nome || 'N/A'}</span>
+                                            {/* ⬇️ CORREÇÃO 3 APLICADA AQUI (no .find) */}
+                                            <span className="pagamento-meta">{new Date(p.data).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} | {motoristas?.find(m => m.id === p.motorista_id)?.nome || 'N/A'}</span>
                                         </div>
                                         <div className="list-item-actions">
                                             <button onClick={() => handleOpenEditModal(p)} className="edit-button">Editar</button>
@@ -219,7 +221,8 @@ export default function Pagamentos() {
                         <h3>Editar Pagamento</h3>
                         <form onSubmit={handleUpdate}>
                             <div className="form-group"><label>Valor (R$):</label><input type="number" step="0.01" name="valor" value={editFormData.valor} onChange={handleEditInputChange} required /></div>
-                            <div className="form-group"><label>Motorista (se aplicável):</label><select name="motorista_id" value={editFormData.motorista_id || ''} onChange={handleEditInputChange}><option value="">Nenhum</option>{motoristas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}</select></div>
+                            {/* ⬇️ CORREÇÃO 4 APLICADA AQUI */}
+                            <div className="form-group"><label>Motorista (se aplicável):</label><select name="motorista_id" value={editFormData.motorista_id || ''} onChange={handleEditInputChange}><option value="">Nenhum</option>{motoristas?.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}</select></div>
                             <div className="form-group"><label>Data:</label><input type="date" name="data" value={editFormData.data} onChange={handleEditInputChange} required /></div>
                             <div className="form-group"><label>Descrição:</label><textarea name="descricao" value={editFormData.descricao} onChange={handleEditInputChange} required></textarea></div>
                             <button type="submit" className="submit-button">Salvar Alterações</button>
