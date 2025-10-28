@@ -43,6 +43,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
             case 'anual': 
                 financeiroConditions.push("YEAR(data) = ?");
                 paramsMain.push(year);
+                // Correção aqui:
                 osConditions.push("YEAR(data_resolucao) = ?");
                 paramsOS.push(year);
                 break;
@@ -50,6 +51,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
             default: 
                 financeiroConditions.push("YEAR(data) = ? AND MONTH(data) = ?");
                 paramsMain.push(year, month);
+                // Correção aqui:
                 osConditions.push("YEAR(data_resolucao) = ? AND MONTH(data_resolucao) = ?");
                 paramsOS.push(year, month);
                 break;
