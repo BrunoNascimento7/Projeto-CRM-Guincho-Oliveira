@@ -76,7 +76,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         const osQuery = `
             SELECT COUNT(id) AS total 
             FROM \`ordens_servico\`
-            WHERE UPPER(STATUS) = 'CONCLUÍDO' 
+            WHERE UPPER(status) = 'CONCLUÍDO' 
             AND ${osConditions.join(' AND ')}
         `;
         
@@ -258,7 +258,7 @@ router.get('/dashboard/faturamento-anual', authMiddleware, permissionMiddleware(
 
 router.get('/dashboard/lucro-por-motorista', authMiddleware, permissionMiddleware(['admin_geral', 'admin']), async (req, res) => {
     try {
-        const sql = `SELECT m.nome AS nome_motorista, SUM(os.lucro) AS total_lucro FROM ordens_servico os JOIN motoristas m ON os.motorista_id = m.id WHERE os.status = 'Concluído' AND os.lucro > 0 GROUP BY m.id, m.nome ORDER BY total_lucro DESC;`;
+        const sql = `SELECT m.nome AS nome_motorista, SUM(os.lucro) AS total_lucro FROM ordens_servico os JOIN motoristas m ON os.motorista_id = m.id WHERE UPPER(os.status) = 'Concluído' AND os.lucro > 0 GROUP BY m.id, m.nome ORDER BY total_lucro DESC;`;
         const [rows] = await pool.execute(sql);
         const labels = rows.map(row => row.nome_motorista);
         const data = rows.map(row => parseFloat(row.total_lucro));
@@ -275,9 +275,9 @@ router.get('/dashboard/picos-faturamento', authMiddleware, permissionMiddleware(
         const dataColuna = 'data_hora'; 
 
         if (agruparPor === 'dia') {
-            sql = `SELECT DAYOFWEEK(${dataColuna}) as dia, SUM(valor) as faturamento_total FROM ordens_servico WHERE status = 'Concluído' AND YEAR(${dataColuna}) = YEAR(CURDATE()) GROUP BY dia ORDER BY dia ASC;`;
+            sql = `SELECT DAYOFWEEK(${dataColuna}) as dia, SUM(valor) as faturamento_total FROM ordens_servico WHERE UPPER(status) = 'CONCLUÍDO' AND YEAR(${dataColuna}) = YEAR(CURDATE()) GROUP BY dia ORDER BY dia ASC;`;
         } else {
-            sql = `SELECT HOUR(${dataColuna}) as hora, SUM(valor) as faturamento_total FROM ordens_servico WHERE status = 'Concluído' AND ${dataColuna} >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY hora ORDER BY hora ASC;`;
+            sql = `SELECT HOUR(${dataColuna}) as hora, SUM(valor) as faturamento_total FROM ordens_servico WHERE UPPER(status) = 'CONCLUÍDO' AND ${dataColuna} >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY hora ORDER BY hora ASC;`;
         }
         const [rows] = await pool.execute(sql);
         let labels;
@@ -308,7 +308,7 @@ router.get('/dashboard/export/xls', authMiddleware, permissionMiddleware(['admin
             SELECT 
                 (SELECT SUM(valor) FROM financeiro WHERE MONTH(data) = MONTH(CURDATE()) AND YEAR(data) = YEAR(CURDATE()) AND tipo = 'Receita') AS faturamento,
                 (SELECT SUM(valor) FROM financeiro WHERE MONTH(data) = MONTH(CURDATE()) AND YEAR(data) = YEAR(CURDATE()) AND tipo = 'Despesa') AS despesas,
-                (SELECT COUNT(id) FROM ordens_servico WHERE MONTH(data_resolucao) = MONTH(CURDATE()) AND YEAR(data_resolucao) = YEAR(CURDATE()) AND status = 'Concluído') AS servicosConcluidos
+                (SELECT COUNT(id) FROM ordens_servico WHERE MONTH(data_resolucao) = MONTH(CURDATE()) AND YEAR(data_resolucao) = YEAR(CURDATE()) AND UPPER(status) = 'CONCLUÍDO') AS servicosConcluidos
         `);
         const faturamento = resumoRows.faturamento || 0;
         const despesas = resumoRows.despesas || 0;
@@ -331,7 +331,7 @@ router.get('/dashboard/export/xls', authMiddleware, permissionMiddleware(['admin
             faturamentoAnualData.push([label, parseFloat(row.faturamento) || 0, parseFloat(row.despesas) || 0]);
         });
 
-        const sqlMotorista = `SELECT m.nome AS nome_motorista, SUM(os.lucro) AS total_lucro FROM ordens_servico os JOIN motoristas m ON os.motorista_id = m.id WHERE os.status = 'Concluído' AND os.lucro > 0 GROUP BY m.id, m.nome ORDER BY total_lucro DESC;`;
+        const sqlMotorista = `SELECT m.nome AS nome_motorista, SUM(os.lucro) AS total_lucro FROM ordens_servico os JOIN motoristas m ON os.motorista_id = m.id WHERE UPPER(os.status) = 'CONCLUÍDO' AND os.lucro > 0 GROUP BY m.id, m.nome ORDER BY total_lucro DESC;`;
         const [motoristaRows] = await connection.execute(sqlMotorista);
         const lucroMotoristaData = [["Motorista", "Lucro Total"]];
         motoristaRows.forEach(row => {
