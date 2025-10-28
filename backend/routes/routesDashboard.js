@@ -7,7 +7,7 @@ const { eachDayOfInterval, format, parseISO } = require('date-fns');
 // Este módulo exporta uma função que recebe as dependências e retorna o router configurado
 module.exports = (pool, authMiddleware, permissionMiddleware) => {
 
-// ROTA DE RESUMO DO DASHBOARD (VERSÃO DEBUG E COM CORREÇÃO DE ERRO)
+// ROTA DE RESUMO DO DASHBOARD (VERSÃO DEBUG E COM CORREÇÃO DE ERRO + PARÂMETROS)
 router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro', 'operacional']), async (req, res) => {
     const { periodo, dataInicio, dataFim } = req.query;
     
@@ -19,7 +19,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
     let paramsMain = [];
     let paramsOS = [];
 
-    // Lógica de filtro (JÁ CORRIGIDA, SEM STR_TO_DATE)
+    // Lógica de filtro (AGORA 100% PARAMETRIZADA)
     if (dataInicio && dataFim) {
         financeiroConditions.push("DATE(data) BETWEEN ? AND ?");
         paramsMain.push(dataInicio, dataFim);
@@ -29,35 +29,35 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth() + 1;
-        let filterFinanceiro = '';
-        let filterOS = '';
         
-        // --- CORREÇÃO APLICADA AQUI ---
+        // ############# INÍCIO DA CORREÇÃO DE PARÂMETROS #############
+        // Removemos a injeção de string e usamos '?'
         switch (periodo) {
             case 'hoje': 
-                filterFinanceiro = "DATE(data) = CURDATE()";
-                filterOS = "DATE(data_resolucao) = CURDATE()";
+                financeiroConditions.push("DATE(data) = CURDATE()");
+                osConditions.push("DATE(data_resolucao) = CURDATE()");
+                // Não precisa de params
                 break;
             case 'semanal': 
-                filterFinanceiro = "YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)";
-                filterOS = "YEARWEEK(data_resolucao, 1) = YEARWEEK(CURDATE(), 1)";
+                financeiroConditions.push("YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)");
+                osConditions.push("YEARWEEK(data_resolucao, 1) = YEARWEEK(CURDATE(), 1)");
+                // Não precisa de params
                 break;
             case 'anual': 
-                filterFinanceiro = `YEAR(data) = ${year}`;
-                filterOS = `YEAR(data_resolucao) = ${year}`;
+                financeiroConditions.push("YEAR(data) = ?");
+                paramsMain.push(year);
+                osConditions.push("YEAR(data_resolucao) = ?");
+                paramsOS.push(year);
                 break;
             case 'mensal': 
             default: 
-                filterFinanceiro = `YEAR(data) = ${year} AND MONTH(data) = ${month}`;
-                filterOS = `YEAR(data_resolucao) = ${year} AND MONTH(data_resolucao) = ${month}`;
+                financeiroConditions.push("YEAR(data) = ? AND MONTH(data) = ?");
+                paramsMain.push(year, month);
+                osConditions.push("YEAR(data_resolucao) = ? AND MONTH(data_resolucao) = ?");
+                paramsOS.push(year, month);
                 break;
         }
-        financeiroConditions.push(filterFinanceiro);
-        osConditions.push(filterOS);
-
-        // --- DEBUG 2 ---
-        console.log(`[DEBUG /resumo] Ano: ${year}, Mês: ${month}`);
-        console.log(`[DEBUG /resumo] Filtro SQL de Finanças: ${filterFinanceiro}`);
+        // ############# FIM DA CORREÇÃO DE PARÂMETROS #############
     }
 
     try {
@@ -71,7 +71,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         
         // --- DEBUG 3 ---
         console.log(`[DEBUG /resumo] SQL Executada: ${mainQuery.replace(/\s+/g, ' ')}`);
-        console.log(`[DEBUG /resumo] Params: ${JSON.stringify(paramsMain)}`);
+        console.log(`[DEBUG /resumo] Params: ${JSON.stringify(paramsMain)}`); // Agora mostrará [2025, 10]
 
         const osQuery = `
             SELECT COUNT(id) AS total 
@@ -80,15 +80,12 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
             AND ${osConditions.join(' AND ')}
         `;
         
-        // ############# INÍCIO DA CORREÇÃO #############
-        // Movemos a query da meta para ser executada separadamente
-
+        // Esta parte para isolar a meta (que fizemos antes) está CORRETA e mantida.
         const metaQuery = "SELECT valor FROM configuracoes WHERE chave = 'meta_lucro_mensal'";
 
-        // --- CORREÇÃO: Executar queries principais primeiro ---
         const [mainResultRows, osResultRows] = await Promise.all([
             pool.execute(mainQuery, paramsMain),
-            pool.execute(osQuery, paramsOS)
+            pool.execute(osQuery, paramsOS) // Agora ambos são 'execute' válidos
         ]);
 
         const mainResult = mainResultRows[0][0];
@@ -97,18 +94,15 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         // --- DEBUG 4 ---
         console.log(`[DEBUG /resumo] Resultado Bruto do Banco: ${JSON.stringify(mainResult)}`);
 
-        let metaLucroValor = 10000; // Define um valor padrão
+        let metaLucroValor = 10000; 
         try {
-            // Tenta buscar a meta, mas não quebra se falhar
-            const [metaResultRows] = await pool.execute(metaQuery);
+            const [metaResultRows] = await pool.execute(metaQuery); // 'execute' aqui é ok (sem params)
             if (metaResultRows && metaResultRows.length > 0) {
                 metaLucroValor = metaResultRows[0].valor;
             }
         } catch (metaError) {
             console.warn(`[AVISO /resumo] Não foi possível buscar a meta_lucro_mensal. Usando valor padrão. Erro: ${metaError.message}`);
-            // A rota continua funcionando mesmo se a tabela 'configuracoes' não existir
         }
-        // ############# FIM DA CORREÇÃO #############
 
         const faturamento = parseFloat(mainResult.faturamento || 0);
         const despesasTotais = parseFloat(mainResult.despesas_financeiro || 0);
