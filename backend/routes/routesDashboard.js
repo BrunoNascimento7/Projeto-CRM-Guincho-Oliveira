@@ -7,8 +7,7 @@ const { eachDayOfInterval, format, parseISO } = require('date-fns');
 // Este módulo exporta uma função que recebe as dependências e retorna o router configurado
 module.exports = (pool, authMiddleware, permissionMiddleware) => {
 
-// ROTA DE RESUMO DO DASHBOARD (SEGURA E OTIMIZADA)
-// ROTA DE RESUMO DO DASHBOARD (VERSÃO DEBUG)
+// ROTA DE RESUMO DO DASHBOARD (VERSÃO DEBUG E COM CORREÇÃO DE ERRO)
 router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro', 'operacional']), async (req, res) => {
     const { periodo, dataInicio, dataFim } = req.query;
     
@@ -74,33 +73,42 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         console.log(`[DEBUG /resumo] SQL Executada: ${mainQuery.replace(/\s+/g, ' ')}`);
         console.log(`[DEBUG /resumo] Params: ${JSON.stringify(paramsMain)}`);
 
-        // (O restante do código permanece o mesmo)
         const osQuery = `
             SELECT COUNT(id) AS total 
             FROM \`ordens_servico\`
             WHERE UPPER(STATUS) = 'CONCLUÍDO' 
             AND ${osConditions.join(' AND ')}
         `;
+        
+        // ############# INÍCIO DA CORREÇÃO #############
+        // Movemos a query da meta para ser executada separadamente
+
         const metaQuery = "SELECT valor FROM configuracoes WHERE chave = 'meta_lucro_mensal'";
 
-        const [
-            mainResultRows,
-            osResultRows, 
-            metaResultRows
-        ] = await Promise.all([
-            pool.execute(mainQuery, paramsMain), 
-            pool.execute(osQuery, paramsOS), 
-            pool.execute(metaQuery)
+        // --- CORREÇÃO: Executar queries principais primeiro ---
+        const [mainResultRows, osResultRows] = await Promise.all([
+            pool.execute(mainQuery, paramsMain),
+            pool.execute(osQuery, paramsOS)
         ]);
 
-        const mainResult = mainResultRows[0][0]; 
+        const mainResult = mainResultRows[0][0];
         const osResult = osResultRows[0][0];
-        
+
         // --- DEBUG 4 ---
         console.log(`[DEBUG /resumo] Resultado Bruto do Banco: ${JSON.stringify(mainResult)}`);
 
-        const metaResult = metaResultRows[0];
-        const metaLucroValor = (metaResult.length > 0) ? metaResult[0].valor : 10000;
+        let metaLucroValor = 10000; // Define um valor padrão
+        try {
+            // Tenta buscar a meta, mas não quebra se falhar
+            const [metaResultRows] = await pool.execute(metaQuery);
+            if (metaResultRows && metaResultRows.length > 0) {
+                metaLucroValor = metaResultRows[0].valor;
+            }
+        } catch (metaError) {
+            console.warn(`[AVISO /resumo] Não foi possível buscar a meta_lucro_mensal. Usando valor padrão. Erro: ${metaError.message}`);
+            // A rota continua funcionando mesmo se a tabela 'configuracoes' não existir
+        }
+        // ############# FIM DA CORREÇÃO #############
 
         const faturamento = parseFloat(mainResult.faturamento || 0);
         const despesasTotais = parseFloat(mainResult.despesas_financeiro || 0);
@@ -139,9 +147,11 @@ router.get('/dashboard/status-os', authMiddleware, async (req, res) => {
 
 router.get('/dashboard/top-clientes', authMiddleware, async (req, res) => {
     try {
-        // --- CORREÇÃO: ADICIONANDO LÓGICA DE FILTRO ---
         const { periodo, dataInicio, dataFim } = req.query;
-        let conditions = ["os.status = 'Concluído'"]; 
+        
+        // --- CORREÇÃO DE LÓGICA: Padronizar o status ---
+        let conditions = ["UPPER(os.status) = 'CONCLUÍDO'"]; // MUDANÇA AQUI
+        
         let params = [];
 
         if (dataInicio && dataFim) {
@@ -170,7 +180,6 @@ router.get('/dashboard/top-clientes', authMiddleware, async (req, res) => {
                     break;
             }
         }
-        // --- FIM DA CORREÇÃO ---
 
         const [rows] = await pool.execute(`
             SELECT c.nome, SUM(os.valor) as total
@@ -180,11 +189,11 @@ router.get('/dashboard/top-clientes', authMiddleware, async (req, res) => {
             GROUP BY c.nome
             ORDER BY total DESC
             LIMIT 5;
-        `, params); // <-- Passa os parâmetros
+        `, params); 
         
         res.json(rows);
     } catch (err) {
-        console.error("Erro na rota top-clientes:", err); // Log de erro
+        console.error("Erro na rota top-clientes:", err); 
         res.status(500).json({ error: 'Falha ao buscar top clientes.' });
     }
 });
@@ -556,13 +565,20 @@ router.get('/dashboard/projecao', authMiddleware, async (req, res) => {
 
 // ROTA PÚBLICA: Usada pelo Dashboard para exibir as imagens
 router.get('/slideshow/images', async (req, res) => {
-    try {
-        const [images] = await pool.execute('SELECT id, image_url FROM slideshow_images ORDER BY data_criacao DESC');
-        res.json(images);
-    } catch (error) {
-        console.error("Erro ao buscar imagens do slideshow:", error);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
-    }
+    try {
+        const [images] = await pool.execute('SELECT id, image_url FROM slideshow_images ORDER BY data_criacao DESC');
+        
+        // --- CORREÇÃO DE MIXED CONTENT ---
+        const secureImages = images.map(image => ({
+            ...image,
+            image_url: image.image_url ? image.image_url.replace('http://', 'https://') : null
+        }));
+        
+        res.json(secureImages);
+    } catch (error) {
+        console.error("Erro ao buscar imagens do slideshow:", error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
 });
 
 router.get('/customize/config', authMiddleware, async (req, res) => {
