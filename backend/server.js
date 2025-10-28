@@ -29,7 +29,8 @@ require('dotenv').config();
 
 const allowedOrigins = [
     'https://projeto-crm-guincho-oliveira.onrender.com', // Sua URL de produção
-    'http://localhost:3000'                               // Sua URL de desenvolvimento
+    'http://localhost:3000',
+    'http://localhost:3000'                                // Sua URL de desenvolvimento
 ];
 
 app.use(cors({
@@ -2104,71 +2105,77 @@ app.post('/api/announcements/global/:id/dismiss', authMiddleware, async (req, re
 
 // Esta tarefa roda a cada minuto para verificar se há manutenções para iniciar ou terminar.
 cron.schedule('* * * * *', async () => {
-    // Usamos o nome da função que criei na resposta anterior,
-    // mas colocamos a lógica diretamente aqui para seguir seu padrão.
-    const connection = await pool.getConnection();
-    try {
-        await connection.beginTransaction();
+     let connection; 
+     try {
+         connection = await pool.getConnection(); 
+         await connection.beginTransaction();
 
-        // --- Parte 1: Inicia manutenções que chegaram na hora ---
-        const [schedulesToStart] = await connection.execute(
-            "SELECT id, cliente_id FROM manutencoes_agendadas WHERE status = 'agendada' AND NOW() >= data_inicio"
-        );
+         // --- Parte 1: Inicia manutenções ---
+         const [schedulesToStart] = await connection.execute(
+             "SELECT id, cliente_id FROM manutencoes_agendadas WHERE status = 'agendada' AND NOW() >= data_inicio"
+         );
 
-        if (schedulesToStart.length > 0) {
-            console.log(`[Scheduler] Encontradas ${schedulesToStart.length} manutenções para iniciar.`);
-            for (const schedule of schedulesToStart) {
-                // Força o logout dos usuários afetados (se cliente_id for NULL, afeta todos)
-                const [updateResult] = await connection.execute(
-                    `UPDATE usuarios SET last_logout_at = UTC_TIMESTAMP() 
-                     WHERE (cliente_id = ? OR ? IS NULL) AND perfil != 'admin_geral'`,
-                    [schedule.cliente_id, schedule.cliente_id]
-                );
+         if (schedulesToStart.length > 0) {
+             console.log(`[Scheduler] Encontradas ${schedulesToStart.length} manutenções para iniciar.`);
+             for (const schedule of schedulesToStart) {
+                 const [updateResult] = await connection.execute(
+                     `UPDATE usuarios SET last_logout_at = UTC_TIMESTAMP() 
+                      WHERE (cliente_id = ? OR ? IS NULL) AND perfil != 'admin_geral'`,
+                     [schedule.cliente_id, schedule.cliente_id]
+                 );
+                 console.log(`[Scheduler] Manutenção ID ${schedule.id}: Forçado logout de ${updateResult.affectedRows} usuários.`);
+                 
+                 onlineUsers.forEach(user => {
+                     const isAffected = !schedule.cliente_id || user.clienteId === schedule.cliente_id;
+                     if (isAffected && user.perfil !== 'admin_geral') {
+                         user.socketIds.forEach(socketId => {
+                             io.to(socketId).emit('force_logout', { message: 'O sistema está entrando em manutenção programada.' });
+                         });
+                     }
+                 });
+                 
+                 await connection.execute(
+                     "UPDATE manutencoes_agendadas SET status = 'em_andamento' WHERE id = ?",
+                     [schedule.id]
+                 );
+             }
+         }
+         
+         // --- Parte 2: Finaliza manutenções ---
+         const [schedulesToEnd] = await connection.execute(
+             "SELECT id FROM manutencoes_agendadas WHERE status = 'em_andamento' AND NOW() >= data_fim"
+         );
 
-                console.log(`[Scheduler] Manutenção ID ${schedule.id}: Forçado logout de ${updateResult.affectedRows} usuários.`);
-                
-                // Emite evento de logout forçado para os usuários online
-                onlineUsers.forEach(user => {
-                    // Verifica se a manutenção é global (cliente_id is null) OU se o cliente do usuário é o alvo
-                    const isAffected = !schedule.cliente_id || user.clienteId === schedule.cliente_id;
-                    if (isAffected && user.perfil !== 'admin_geral') {
-                        user.socketIds.forEach(socketId => {
-                            io.to(socketId).emit('force_logout', { message: 'O sistema está entrando em manutenção programada.' });
-                        });
-                    }
-                });
-                
-                // Atualiza o status do agendamento para 'em_andamento'
-                await connection.execute(
-                    "UPDATE manutencoes_agendadas SET status = 'em_andamento' WHERE id = ?",
-                    [schedule.id]
-                );
-            }
-        }
-        
-        // --- Parte 2: Finaliza manutenções cujo tempo acabou ---
-        const [schedulesToEnd] = await connection.execute(
-            "SELECT id FROM manutencoes_agendadas WHERE status = 'em_andamento' AND NOW() >= data_fim"
-        );
+         if (schedulesToEnd.length > 0) {
+             console.log(`[Scheduler] Encontradas ${schedulesToEnd.length} manutenções para finalizar.`);
+             const idsToEnd = schedulesToEnd.map(s => s.id);
+             const placeholders = idsToEnd.map(() => '?').join(',');
 
-        if (schedulesToEnd.length > 0) {
-            console.log(`[Scheduler] Encontradas ${schedulesToEnd.length} manutenções para finalizar.`);
-            const idsToEnd = schedulesToEnd.map(s => s.id);
-            const placeholders = idsToEnd.map(() => '?').join(',');
+             await connection.execute(
+                 `UPDATE manutencoes_agendadas SET status = 'concluida' WHERE id IN (${placeholders})`,
+                 idsToEnd
+             );
+         }
 
-            await connection.execute(
-                `UPDATE manutencoes_agendadas SET status = 'concluida' WHERE id IN (${placeholders})`,
-                idsToEnd
-            );
-        }
-
-        await connection.commit();
-    } catch (error) {
-        await connection.rollback();
-        console.error("❌ Erro no CRON de manutenção:", error);
-    } finally {
-        if (connection) connection.release();
-    }
+         await connection.commit();
+     } catch (error) {
+         console.error("❌ Erro no CRON de manutenção:", error); 
+         
+         if (connection) { 
+             try {
+                 console.log("[Scheduler] Tentando rollback...");
+                 await connection.rollback();
+                 console.log("[Scheduler] Rollback realizado.");
+             } catch (rollBackError) {
+                 console.error("[Scheduler] Falha ao tentar rollback:", rollBackError);
+             }
+         }
+     } finally {
+         if (connection) {
+             connection.release();
+             console.log("[Scheduler] Conexão liberada.");
+         } // ★★★ O "S" FOI REMOVIDO DAQUI ★★★
+     }
 });
 
 // 1. Servir os arquivos estáticos (CSS, JS, Imagens do frontend) da pasta build

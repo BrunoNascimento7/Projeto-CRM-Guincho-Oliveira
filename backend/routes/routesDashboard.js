@@ -8,98 +8,120 @@ const { eachDayOfInterval, format, parseISO } = require('date-fns');
 module.exports = (pool, authMiddleware, permissionMiddleware) => {
 
 // ROTA DE RESUMO DO DASHBOARD (SEGURA E OTIMIZADA)
+// ROTA DE RESUMO DO DASHBOARD (VERSÃO DEBUG)
 router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro', 'operacional']), async (req, res) => {
-    const { periodo, dataInicio, dataFim } = req.query;
-    
-    // ... (a lógica de criação dos filtros de data permanece a mesma) ...
-    let financeiroConditions = [];
-    let despesasConditions = [];
-    let osConditions = [];
-    let params = [];
-    let numParams = 0;
+    const { periodo, dataInicio, dataFim } = req.query;
+    
+    // --- DEBUG 1 ---
+    console.log(`[DEBUG /resumo] Requisição recebida. Período: ${periodo}, Início: ${dataInicio}, Fim: ${dataFim}`);
+    
+    let financeiroConditions = [];
+    let osConditions = [];
+    let paramsMain = [];
+    let paramsOS = [];
 
-    if (dataInicio && dataFim) {
-        financeiroConditions.push('DATE(data) BETWEEN ? AND ?');
-        despesasConditions.push('DATE(data_pagamento) BETWEEN ? AND ?');
-        // CORREÇÃO AQUI: data_resolucao -> data_resolucao
-        osConditions.push("DATE(data_resolucao) BETWEEN ? AND ?");
-        params.push(dataInicio, dataFim, dataInicio, dataFim, dataInicio, dataFim);
-        numParams = 6;
-    } else {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1;
-        
-        let filter = '';
-        switch (periodo) {
-            case 'hoje': filter = 'DATE(data) = CURDATE()'; break;
-            case 'semanal': filter = 'YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)'; break;
-            case 'anual': filter = `YEAR(data) = ${year}`; break;
-            case 'mensal': default: filter = `YEAR(data) = ${year} AND MONTH(data) = ${month}`; break;
-        }
-        financeiroConditions.push(filter);
-        despesasConditions.push(filter.replace(/\bdata\b/g, 'data_pagamento'));
-        // CORREÇÃO AQUI: data_resolucao -> data_resolucao
-        osConditions.push(filter.replace(/\bdata\b/g, 'data_resolucao'));
-    }
+    // Lógica de filtro (JÁ CORRIGIDA, SEM STR_TO_DATE)
+    if (dataInicio && dataFim) {
+        financeiroConditions.push("DATE(data) BETWEEN ? AND ?");
+        paramsMain.push(dataInicio, dataFim);
+        osConditions.push("DATE(data_resolucao) BETWEEN ? AND ?");
+        paramsOS.push(dataInicio, dataFim);
+    } else {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        let filterFinanceiro = '';
+        let filterOS = '';
+        
+        // --- CORREÇÃO APLICADA AQUI ---
+        switch (periodo) {
+            case 'hoje': 
+                filterFinanceiro = "DATE(data) = CURDATE()";
+                filterOS = "DATE(data_resolucao) = CURDATE()";
+                break;
+            case 'semanal': 
+                filterFinanceiro = "YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)";
+                filterOS = "YEARWEEK(data_resolucao, 1) = YEARWEEK(CURDATE(), 1)";
+                break;
+            case 'anual': 
+                filterFinanceiro = `YEAR(data) = ${year}`;
+                filterOS = `YEAR(data_resolucao) = ${year}`;
+                break;
+            case 'mensal': 
+            default: 
+                filterFinanceiro = `YEAR(data) = ${year} AND MONTH(data) = ${month}`;
+                filterOS = `YEAR(data_resolucao) = ${year} AND MONTH(data_resolucao) = ${month}`;
+                break;
+        }
+        financeiroConditions.push(filterFinanceiro);
+        osConditions.push(filterOS);
 
-    try {
-        const mainQuery = `
-            SELECT
-                SUM(CASE WHEN UPPER(tipo) = 'RECEITA' THEN valor ELSE 0 END) AS faturamento,
-                SUM(CASE WHEN UPPER(tipo) = 'DESPESA' THEN valor ELSE 0 END) AS despesas_financeiro
-            FROM \`financeiro\`
-            WHERE ${financeiroConditions.join(' AND ')}
-        `;
-        
-        const despesasAdicionaisQuery = `
-            SELECT COALESCE(SUM(valor), 0) AS despesas_adicionais
-            FROM \`despesas\`
-            WHERE status = 'Paga' AND ${despesasConditions.join(' AND ')}
-        `;
-        
-        // CORREÇÃO APLICADA NA CONSULTA ABAIXO
-        const osQuery = `
-            SELECT COUNT(id) AS total 
-            FROM \`ordens_servico\`
-            WHERE UPPER(status) = 'CONCLUÍDO' 
-            AND ${osConditions[0]}
-        `;
-        
-        const metaQuery = "SELECT valor FROM configuracoes WHERE chave = 'meta_lucro_mensal'";
+        // --- DEBUG 2 ---
+        console.log(`[DEBUG /resumo] Ano: ${year}, Mês: ${month}`);
+        console.log(`[DEBUG /resumo] Filtro SQL de Finanças: ${filterFinanceiro}`);
+    }
 
-        const paramsMain = numParams === 6 ? [params[0], params[1]] : [];
-        const paramsDespesas = numParams === 6 ? [params[2], params[3]] : [];
-        const paramsOS = numParams === 6 ? [params[4], params[5]] : [];
+    try {
+        const mainQuery = `
+            SELECT
+                SUM(CASE WHEN TRIM(UPPER(tipo)) = 'RECEITA' THEN valor ELSE 0 END) AS faturamento,
+                SUM(CASE WHEN TRIM(UPPER(tipo)) = 'DESPESA' THEN valor ELSE 0 END) AS despesas_financeiro
+            FROM \`financeiro\`
+            WHERE ${financeiroConditions.join(' AND ')}
+        `;
+        
+        // --- DEBUG 3 ---
+        console.log(`[DEBUG /resumo] SQL Executada: ${mainQuery.replace(/\s+/g, ' ')}`);
+        console.log(`[DEBUG /resumo] Params: ${JSON.stringify(paramsMain)}`);
 
-        const [
-            [mainResult],
-            [despesasAdicionaisResult], 
-            [osResult],
-            [metaResult]
-        ] = await Promise.all([
-            pool.execute(mainQuery, paramsMain), 
-            pool.execute(despesasAdicionaisQuery, paramsDespesas), 
-            pool.execute(osQuery, paramsOS), 
-            pool.execute(metaQuery)
-        ]);
+        // (O restante do código permanece o mesmo)
+        const osQuery = `
+            SELECT COUNT(id) AS total 
+            FROM \`ordens_servico\`
+            WHERE UPPER(STATUS) = 'CONCLUÍDO' 
+            AND ${osConditions.join(' AND ')}
+        `;
+        const metaQuery = "SELECT valor FROM configuracoes WHERE chave = 'meta_lucro_mensal'";
 
-        const faturamento = parseFloat(mainResult.faturamento || 0);
-        const despesasFinanceiro = parseFloat(mainResult.despesas_financeiro || 0);
-        const despesasAdicionais = parseFloat(despesasAdicionaisResult.despesas_adicionais || 0);
-        const despesasTotais = despesasFinanceiro + despesasAdicionais;
-        
-        res.json({
-            faturamento,
-            despesas: despesasTotais,
-            lucro: faturamento - despesasTotais,
-            servicosConcluidos: parseInt(osResult.total || 0),
-            metaLucro: parseFloat(metaResult[0]?.valor || 10000),
-        });
-    } catch (err) {
-        console.error("Erro na rota de resumo:", err);
-        res.status(500).json({ error: 'Falha ao buscar dados do resumo.' });
-    }
+        const [
+            mainResultRows,
+            osResultRows, 
+            metaResultRows
+        ] = await Promise.all([
+            pool.execute(mainQuery, paramsMain), 
+            pool.execute(osQuery, paramsOS), 
+            pool.execute(metaQuery)
+        ]);
+
+        const mainResult = mainResultRows[0][0]; 
+        const osResult = osResultRows[0][0];
+        
+        // --- DEBUG 4 ---
+        console.log(`[DEBUG /resumo] Resultado Bruto do Banco: ${JSON.stringify(mainResult)}`);
+
+        const metaResult = metaResultRows[0];
+        const metaLucroValor = (metaResult.length > 0) ? metaResult[0].valor : 10000;
+
+        const faturamento = parseFloat(mainResult.faturamento || 0);
+        const despesasTotais = parseFloat(mainResult.despesas_financeiro || 0);
+        
+        const dataToSend = {
+            faturamento,
+            despesas: despesasTotais,
+            lucro: faturamento - despesasTotais,
+            servicosConcluidos: parseInt(osResult.total || 0),
+            metaLucro: parseFloat(metaLucroValor),
+        };
+        
+        // --- DEBUG 5 ---
+        console.log(`[DEBUG /resumo] Dados Enviados ao Frontend: ${JSON.stringify(dataToSend)}`);
+
+        res.json(dataToSend);
+
+    } catch (err) {
+        console.error("!!! ERRO CRÍTICO NA ROTA DE RESUMO:", err);
+        res.status(500).json({ error: 'Falha ao buscar dados do resumo.' });
+    }
 });
 
 router.get('/dashboard/status-os', authMiddleware, async (req, res) => {
@@ -116,27 +138,66 @@ router.get('/dashboard/status-os', authMiddleware, async (req, res) => {
 });
 
 router.get('/dashboard/top-clientes', authMiddleware, async (req, res) => {
-    try {
-        const [rows] = await pool.execute(`
-            SELECT c.nome, SUM(os.valor) as total
-            FROM ordens_servico os
-            JOIN clientes c ON os.cliente_id = c.id
-            WHERE os.status = 'Concluído'
-            GROUP BY c.nome
-            ORDER BY total DESC
-            LIMIT 5;
-        `);
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: 'Falha ao buscar top clientes.' });
-    }
+    try {
+        // --- CORREÇÃO: ADICIONANDO LÓGICA DE FILTRO ---
+        const { periodo, dataInicio, dataFim } = req.query;
+        let conditions = ["os.status = 'Concluído'"]; 
+        let params = [];
+
+        if (dataInicio && dataFim) {
+            conditions.push('DATE(os.data_resolucao) BETWEEN ? AND ?');
+            params.push(dataInicio, dataFim);
+        } else {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            
+            switch (periodo) {
+                case 'hoje': 
+                    conditions.push('DATE(os.data_resolucao) = CURDATE()'); 
+                    break;
+                case 'semanal': 
+                    conditions.push('YEARWEEK(os.data_resolucao, 1) = YEARWEEK(CURDATE(), 1)'); 
+                    break;
+                case 'anual': 
+                    conditions.push('YEAR(os.data_resolucao) = ?'); 
+                    params.push(year);
+                    break;
+                case 'mensal': 
+                default: 
+                    conditions.push('YEAR(os.data_resolucao) = ? AND MONTH(os.data_resolucao) = ?'); 
+                    params.push(year, month);
+                    break;
+            }
+        }
+        // --- FIM DA CORREÇÃO ---
+
+        const [rows] = await pool.execute(`
+            SELECT c.nome, SUM(os.valor) as total
+            FROM ordens_servico os
+            JOIN clientes c ON os.cliente_id = c.id
+            WHERE ${conditions.join(' AND ')}
+            GROUP BY c.nome
+            ORDER BY total DESC
+            LIMIT 5;
+        `, params); // <-- Passa os parâmetros
+        
+        res.json(rows);
+    } catch (err) {
+        console.error("Erro na rota top-clientes:", err); // Log de erro
+        res.status(500).json({ error: 'Falha ao buscar top clientes.' });
+    }
 });
 
+// Coloque o nome certo da rota aqui: /faturamento-anual ou /faturamento-anual-1
 router.get('/dashboard/faturamento-anual', authMiddleware, permissionMiddleware(['admin_geral', 'admin', 'financeiro', 'operacional']), async (req, res) => {
-        try {
-        // --- INÍCIO DA CORREÇÃO ---
-        // Precisamos recriar a lógica de filtro que está na rota 'resumo'
-        const { periodo, dataInicio, dataFim } = req.query;
+    
+    console.log(`[${new Date().toISOString()}] REQUISIÇÃO RECEBIDA em /faturamento-anual`);
+    console.log('Query Params Recebidos:', req.query); 
+
+    try {
+        // Ignoramos 'periodo' pois esta rota é sempre anual
+        const { dataInicio, dataFim, ano } = req.query; 
         let conditions = [];
         let params = [];
 
@@ -144,35 +205,11 @@ router.get('/dashboard/faturamento-anual', authMiddleware, permissionMiddleware(
             conditions.push('DATE(data) BETWEEN ? AND ?');
             params.push(dataInicio, dataFim);
         } else {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth() + 1;
-            
-            switch (periodo) {
-                case 'hoje': 
-                    conditions.push('DATE(data) = CURDATE()'); 
-                    break;
-                case 'semanal': 
-                    conditions.push('YEARWEEK(data, 1) = YEARWEEK(CURDATE(), 1)'); 
-                    break;
-                case 'anual': 
-                    conditions.push('YEAR(data) = ?'); 
-                    params.push(year);
-                    break;
-                case 'mensal': 
-                default: 
-                    conditions.push('YEAR(data) = ? AND MONTH(data) = ?'); 
-                    params.push(year, month);
-                    break;
-            }
+            const yearToUse = ano || new Date().getFullYear(); 
+            conditions.push('YEAR(data) = ?'); 
+            params.push(yearToUse);
         }
         
-        // Se a rota for chamada sem filtro (ex: pelo dashboard antigo),
-        // default para o ano atual.
-        if (conditions.length === 0) {
-            conditions.push('YEAR(data) = YEAR(CURDATE())');
-        }
-
         const sql = `
             SELECT 
                 MONTH(data) AS mes, 
@@ -183,15 +220,29 @@ router.get('/dashboard/faturamento-anual', authMiddleware, permissionMiddleware(
             GROUP BY MONTH(data) 
             ORDER BY mes ASC;
         `;
+        
+        console.log('SQL Executado:', sql);
+        console.log('Parâmetros:', params);
 
-        // Use os parâmetros na query!
         const [rows] = await pool.execute(sql, params);
-        // --- FIM DA CORREÇÃO ---
         
         const labels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        
+        const faturamentoData = new Array(12).fill(0);
+        const despesasData = new Array(12).fill(0);
 
+        rows.forEach(row => {
+            const mesIndex = row.mes - 1; 
+            if (mesIndex >= 0 && mesIndex < 12) {
+                faturamentoData[mesIndex] = parseFloat(row.faturamento);
+                despesasData[mesIndex] = parseFloat(row.despesas);
+            }
+        });
+        
+        console.log('Dados enviados para o frontend com sucesso.'); 
         res.json({ labels, faturamentoData, despesasData });
     } catch (err) {
+        console.error("!!! ERRO CRÍTICO na rota /faturamento-anual:", err); 
         res.status(500).json({ error: 'Falha ao buscar dados do gráfico.' });
     }
 });

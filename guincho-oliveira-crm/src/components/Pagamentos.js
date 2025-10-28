@@ -49,7 +49,7 @@ export default function Pagamentos() {
 
         setPagamentos(despesasData);
         // Aqui está a correção da lista de motoristas (acessando .data)
-        setMotoristas(motoristasRes.data || []); 
+        setMotoristas(motoristasRes.data.data || []);
 
         // 3. Calculamos o total de despesas a partir dos dados já filtrados
         const totalDespesa = despesasData.reduce((acc, despesa) => {

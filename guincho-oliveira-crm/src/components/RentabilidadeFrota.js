@@ -35,9 +35,22 @@ export default function RentabilidadeFrota() {
         setLoading(true);
         try {
             const res = await api.get(`/api/rentabilidade/frota?periodo=${periodo}`);
-            setDadosFrota(res.data);
+            
+            // --- INÍCIO DA CORREÇÃO ---
+            // Verifica se a resposta da API é realmente um array
+            // Se for um objeto (como um erro { error: "..." }), evita o crash
+            if (Array.isArray(res.data)) {
+                setDadosFrota(res.data);
+            } else {
+                // Se não for um array, loga o erro e define um array vazio
+                console.error("A API não retornou um array:", res.data);
+                setDadosFrota([]); 
+            }
+            // --- FIM DA CORREÇÃO ---
+
         } catch (error) {
             console.error("Erro ao buscar dados de rentabilidade:", error);
+            setDadosFrota([]); // Garante que é um array vazio em caso de erro
         } finally {
             setLoading(false);
         }
