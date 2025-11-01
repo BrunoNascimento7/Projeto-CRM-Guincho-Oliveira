@@ -59,8 +59,9 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
     }
 
     try {
-        const mainQuery = `
-            SELECT
+        // ############# CORREÇÃO AQUI #############
+        // O "SELECT" deve começar na mesma linha da crase
+        const mainQuery = `SELECT
                 SUM(CASE WHEN TRIM(UPPER(tipo)) = 'RECEITA' THEN valor ELSE 0 END) AS faturamento,
                 SUM(CASE WHEN TRIM(UPPER(tipo)) = 'DESPESA' THEN valor ELSE 0 END) AS despesas_financeiro
             FROM \`financeiro\`
@@ -71,8 +72,9 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
         console.log(`[DEBUG /resumo] SQL Executada: ${mainQuery.replace(/\s+/g, ' ')}`);
         console.log(`[DEBUG /resumo] Params: ${JSON.stringify(paramsMain)}`);
 
-        const osQuery = `
-            SELECT COUNT(id) AS total 
+        // ############# CORREÇÃO AQUI #############
+        // O "SELECT" deve começar na mesma linha da crase
+        const osQuery = `SELECT COUNT(id) AS total 
             FROM \`ordens_servico\`
             WHERE UPPER(status) = 'CONCLUÍDO' 
             AND ${osConditions.join(' AND ')}
