@@ -63,12 +63,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
     try {
         // ############# CORREÇÃO AQUI #############
         // O "SELECT" deve começar na mesma linha da crase
-        const mainQuery = `SELECT
-                SUM(CASE WHEN TRIM(UPPER(tipo)) = 'RECEITA' THEN valor ELSE 0 END) AS faturamento,
-                SUM(CASE WHEN TRIM(UPPER(tipo)) = 'DESPESA' THEN valor ELSE 0 END) AS despesas_financeiro
-            FROM \`financeiro\`
-            WHERE ${financeiroConditions.join(' AND ')}
-        `;
+        const mainQuery = `SELECTSUM(CASE WHEN TRIM(UPPER(tipo)) = 'RECEITA' THEN valor ELSE 0 END) AS faturamento, SUM(CASE WHEN TRIM(UPPER(tipo)) = 'DESPESA' THEN valor ELSE 0 END) AS despesas_financeiro FROM \`financeiro\` WHERE ${financeiroConditions.join(' AND ')}`;
         
         // --- DEBUG 3 ---
         console.log(`[DEBUG /resumo] SQL Executada: ${mainQuery.replace(/\s+/g, ' ')}`);
@@ -76,11 +71,7 @@ router.get('/dashboard/resumo', authMiddleware, permissionMiddleware(['admin_ger
 
         // ############# CORREÇÃO AQUI #############
         // O "SELECT" deve começar na mesma linha da crase
-        const osQuery = `SELECT COUNT(id) AS total 
-            FROM \`ordens_servico\`
-            WHERE UPPER(status) = 'CONCLUÍDO' 
-            AND ${osConditions.join(' AND ')}
-        `;
+        const osQuery = `SELECT COUNT(id) AS total FROM \`ordens_servico\` WHERE UPPER(status) = 'CONCLUÍDO' AND ${osConditions.join(' AND ')}`;
         
         const metaQuery = "SELECT valor FROM configuracoes WHERE chave = 'meta_lucro_mensal'";
 
